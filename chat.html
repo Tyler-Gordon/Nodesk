@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <script>
+            // Create WebSocket connection.
+            const socket = new WebSocket('ws://localhost:8000/chat');
+
+            socket.onopen = () => {
+                console.log('Connected')
+            }
+
+            function sendMessage() {
+                var msg = {
+                type: "message",
+                text: document.getElementById("message").value,
+                date: Date.now()
+                };
+                socket.send(JSON.stringify(msg))
+                document.getElementById("message").value = "";
+            }
+
+            socket.onmessage = (event) => {
+                console.log(JSON.parse(event.data))
+            }
+        </script>
+        <p id="response"></p>
+        <form method="POST">
+            <textarea name="message"></textarea>
+            <button id="sendMessage" onclick="sendMessage">Send</button>
+        </form>
+    </body>
+</html>
