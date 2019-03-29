@@ -2,11 +2,14 @@
 const server = require('http').createServer();
 const fs = require('fs');
 const qs = require('querystring');
+const url = require('url');
 
 // Environment Variables
 const port = process.env.PORT || 8000
 
 // Our modules
+const createChat =  require('./chat').createChat;
+const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
 const createKey = require('./createSocketKey').createKey;
 const parseBuffer = require('./parseBuffer').parseBuffer;
@@ -20,6 +23,17 @@ server.on('request', (req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });            
             res.end(fs.readFileSync(`./loginpage.html`));
             break;
+
+        //WORK IN PROGRESS
+        case '/messages':
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            const username = url.parse(req.url, true).username;
+            getMessages(username, (data) => {
+                res.end(JSON.stringify(data));
+            })
+            // Test getMessages();
+
+            res.end()
 
         // Need to rework this later (reminder for Connor) 
         case '/submit':
@@ -38,12 +52,6 @@ server.on('request', (req, res) => {
 
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Registration successful');
-            break;
-        
-        // Will also need to rework this later (reminder for Connor)
-        case '/messages':
-            res.writeHead(200, { 'Content-Type': 'text/html' });            
-            res.end(fs.readFileSync(`.${req.url}.html`));
             break;
 
         // If they attempt to go somewhere that's not allowed
