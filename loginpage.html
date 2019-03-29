@@ -9,7 +9,7 @@
         <div style='height:100vh'>
             <div class='row justify-content-center align-items-center h-100'>
                 <span class='card card-body col-md-5 col-sm-12 mx-auto my-auto'  style='background: rgba(255,255,255,0.8); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); height:90%;' id='loginblock'  >
-                    <form id='formBlock' class='form container' method="GET" action="/submit">    
+                    <form id='formBlock' class='form container' method="POST" name='Login' action="/" >    
                         <br>       
                         <span>
                             <img id='bcitalklogo' class='col-12' src='assets/logo2.png' height='130vh' width='100vw'>
@@ -50,6 +50,7 @@
             function createElementsForSignup(){
                 var regForm = document.getElementById("formBlock")
                 regForm.method = 'POST'
+                regForm.name = 'Signup'
                 passwordInitial =  createElementForSignup('input','password','form-group form-control','passwordInitial','passwordInitial','Password','background: rgba(255,255,255,0.5);',true)
                 passwordCheck =  createElementForSignup('input','password','form-group form-control','passwordCheck','passwordCheck','Re-type Password','background: rgba(255,255,255,0.5);',true)
                 email =  createElementForSignup('input','email','form-group form-control','email','email','Email','background: rgba(255,255,255,0.5);',true)
