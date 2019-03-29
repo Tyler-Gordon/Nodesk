@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <title>test</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <div id="app">
+      <h1>{{message}}</h1>
+      <button v-on:click="getMessages">GET MESSAGE DATA</button>
+    </div>
+    <script>
+        var app = new Vue({
+          el : "#app",
+          data: {
+            message: "nothing"
+          },
+          methods: {
+            
+            getMessages: function(){ 
+              var xhr = new XMLHttpRequest();
+
+              xhr.onload = function () {
+              if (xhr.status >= 200 && xhr.status < 300) {
+                var serverData = JSON.parse(xhr.responseText)
+                app.$data.message = serverData.message
+              }
+              };
+
+              xhr.open('GET', 'http://localhost:8000/data');
+              xhr.send();
+              
+            }
+          },
+          mutations:{
+            saveMessage(message){
+              this.message = message
+            }
+          }
+        })
+    </script>
+  </body>
+</html>
