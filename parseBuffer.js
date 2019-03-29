@@ -1,27 +1,24 @@
 function parseBuffer (buffer) {
     const firstByte = buffer.readUInt8(0);
-    const isLastFrame = Boolean((firstByte >>> 7) & 0x1);
 
-    // Reserved frames for future functionality
-    const [reserved1, reserved2, reserved3] = [((firstByte >>> 6) & 0x1), ((firstByte >>> 5) & 0x1), ((firstByte >>> 4) & 0x1)];
-
-    // Defines how we should interpret the data
+    // Defines how we should interpret the data by grabbing the last 4 bits
     const opCode = firstByte & 0xF;
 
     // 0x8 signifies a connection close frame so we'll return null so the server knows the connections been closed
-    if (opCode === 0x8){
+    // 0x1 signifies a text frame which is the only type of data we want to handle
+    if (opCode === 0x8 || opCode !== 0x1){
       return null;
-      // 0x1 signifies a text frame which is the only type of data we want to handle
-    } else if (opCode !== 0x1){
-      return;
     }
 
     const secondByte = buffer.readUInt8(1);
+
     // If the first bit of the second byte is a 1, then the payload is masked
     // and we have to grab the masking key which is the next 4 bytes after the payload length
     const frameIsMasked = Boolean((secondByte >>> 7) & 0x1);
+
     // Monitor what byte we want to work with next
     let currentByte = 2;
+
     // This will tell us how long the payload is (<125 or 126 or 127)
     let payloadLength = secondByte & 0x7F;
 
@@ -36,10 +33,14 @@ function parseBuffer (buffer) {
 
         // Monitor what byte we want to work with next
         currentByte += 2;
+        
+        // If it's some massive payload then someone has tampered with the html
+        // and we're not gonna handle that
       } else {
-        return;
+        return null;
       }
     }
+
     // Allocate memory to store the message
     const payload = Buffer.alloc(payloadLength);
 
@@ -47,12 +48,14 @@ function parseBuffer (buffer) {
     // which is the only communication we want to receive.
     var maskingKey;
     if (frameIsMasked) {
+
       // We use BE instead of LE as we want the bytes in BigEndian order, which is
       // simply the order they arrived in
       maskingKey = buffer.readUInt32BE(currentByte);
       currentByte += 4;
       
       for (let i = 0; i < payloadLength; ++i) {
+
         // Byte masking key to use for the XOR calc
         let j = i % 4;
 

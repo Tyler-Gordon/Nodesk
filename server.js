@@ -98,7 +98,7 @@ server.on('upgrade', (req, socket) => {
             // We can add shit to the db
             // addMessage(userMessage)
 
-            //TODO have a list of userIDs that are connected
+            //TODO maintain a list of userIDs that are connected
             //TODO sendToOnlineClients(serverMessage);
             //TODO security and stuff
         } else {
