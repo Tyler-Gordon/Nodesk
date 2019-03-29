@@ -21,7 +21,7 @@ server.on('request', (req, res) => {
 
         case '/':
             res.writeHead(200, { 'Content-Type': 'text/html' });            
-            res.end(fs.readFileSync(`./loginpage.html`));
+            res.end(fs.readFileSync(`./public/loginpage.html`));
             break;
 
         //WORK IN PROGRESS
