@@ -1,0 +1,23 @@
+{
+  "name": "bcitalk",
+  "version": "1.0.0",
+  "description": "Real-time chat application over WebSockets",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tyler-Gordon/BCITalk.git"
+  },
+  "author": "Connor Vinchoff, Tyler Gordon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tyler-Gordon/BCITalk/issues"
+  },
+  "homepage": "https://github.com/Tyler-Gordon/BCITalk#readme",
+  "dependencies": {
+    "mongodb": "^3.2.2"
+  }
+}
