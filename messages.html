@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat</title>
+    </head>
+    <body>
+        <script>
+            // Example websocket stuff for Tyler
+            // Create WebSocket connection.
+            
+            const ws = new WebSocket('ws://localhost:8000/messages', 'json');
+            ws.addEventListener('open', () => {
+                console.log('Connection opened.')
+                const data = { message: 'Hello from the client!' }
+                const json = JSON.stringify(data);
+                ws.send(json);
+                console.log('Message sent.')
+            });
+
+            ws.addEventListener('message', event => {
+                const data = JSON.parse(event.data);
+                console.log('Received', data);
+            });
+
+            function sendMessage() {
+                var msg = {
+                chatID: "MyChatID",
+                userID: "MyID",
+                text: document.getElementById("message").value,
+                date: Date()
+                };
+                const json = JSON.stringify(msg)
+                ws.send(json)
+                document.getElementById("message").value = "";
+            }
+
+        </script>
+        <p id="response"></p>
+        <textarea id="message" name="message" maxlength="500"></textarea>
+        <button id="sendMessage" onclick=sendMessage()>Send</button>
+    </body>
+</html>
