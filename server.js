@@ -6,6 +6,7 @@ const url = require('url');
 
 // Environment Variables
 const port = process.env.PORT || 8000
+var connectedUsers = [];
 
 // Our modules
 const createChat =  require('./chat').createChat;
@@ -35,6 +36,11 @@ server.on('request', (req, res) => {
 
             res.end()
 
+        case '/chat':
+            res.writeHead(200, { 'Content-Type': 'text/html' });            
+            res.end(fs.readFileSync(`./public/messages.html`));
+            break;
+
         // Need to rework this later (reminder for Connor) 
         case '/submit':
             if (req.method === 'POST') {
@@ -63,6 +69,7 @@ server.on('request', (req, res) => {
 
 server.on('upgrade', (req, socket) => {
 
+    // I want to write this section into a function
     if (req.url !== '/messages'){
         socket.end('HTTP/1.1 400 Bad Request');
         return;
@@ -82,37 +89,57 @@ server.on('upgrade', (req, socket) => {
         'Connection: Upgrade',
         `Sec-WebSocket-Accept: ${serverKey}`,
         'Sec-WebSocket-Protocol: json'];
+    // I want to write this section into a function
 
     // This establishes the connection and turns the current TCP socket
     // into a websocket
-    socket.write(responseHeader.join('\r\n') + '\r\n\r\n');
+    socket.write(responseHeader.join('\r\n') + '\r\n\r\n'); // I want to make a socket.acceptWebsocket function
+    
+    // For some reason this event and the 'connect' event don't fire? Maybe we should just do all this stuff before
+    // the 'data' event and make sure we have all this stuff connected.
+    socket.on('ready', () => {
+        // Grab the user's username and get all the chatIds they're linked to
+        // Then push to connectedUsers a local object that stores:
+        // the UserIds, ChatIds and socket they're connected to.
+        // userChatIDs = getChatIDs(userID);
+        // let user = {
+        //     userID : 'something',
+        //     chatIDs : userChatIDs,
+        //     sock : socket.ref()
+        // }
+        // connectedUsers.push(user)
+        
+    });
 
     socket.on('data', buffer => {
-        // Parses the buffer data received from client
-        const userMessage = parseBuffer(buffer)
+        try {
+            // Parses the buffer data received from client
+            const userMessage = parseBuffer(buffer)
 
-        // If it's null there was an error and we'll handle it
-        if (userMessage !== null) {
+            // We stringify the data then pass it into constructBuffer
 
-            // Here we'll build the unmasked message from the initial message
-            const serverMessage = constructBuffer(userMessage)
+            const messageString = JSON.stringify(userMessage)
+            const serverMessage = constructBuffer(messageString)
 
             // This will echo the message back to the client
             socket.write(serverMessage)
 
             // This sends the user message in json format to the database
 
-            // User auth and sending user info has to be implemented first before
-            // We can add shit to the db
+            // User auth and sending user info has to be implemented first
             // addMessage(userMessage)
 
             //TODO maintain a list of userIDs that are connected
             //TODO sendToOnlineClients(serverMessage);
             //TODO security and stuff
-        } else {
-            console.log('There has been an error');
+
+        } catch (e) {
+            // I've thrown a couple errors in parseBuffer instead of returning null.
+            // That way we can include a logging functionality if we want.
+            console.log(e.message)
         }
     });
+
 });
             
 

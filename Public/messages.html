@@ -20,14 +20,14 @@
 
             ws.addEventListener('message', event => {
                 const data = JSON.parse(event.data);
-                console.log('Received', data);
+                document.getElementById('response').append(`${data.message}\n`)
             });
 
             function sendMessage() {
                 var msg = {
                 chatID: "MyChatID",
                 userID: "MyID",
-                text: document.getElementById("message").value,
+                message: document.getElementById("message").value,
                 date: Date()
                 };
                 const json = JSON.stringify(msg)
