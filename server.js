@@ -21,7 +21,11 @@ server.on('request', (req, res) => {
 
         case '/':
             res.writeHead(200, { 'Content-Type': 'text/html' });            
+<<<<<<< HEAD
             res.end(fs.readFileSync(`./Public/index.html`));
+=======
+            res.end(fs.readFileSync(`./public/loginpage.html`));
+>>>>>>> 83b7cb75badde43f91dc4ce2eedf6747ef4a3637
             break;
         case '/components/':
             res.writeHead(200, { 'Content-Type': '' });            
