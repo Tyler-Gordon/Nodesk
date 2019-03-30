@@ -21,16 +21,18 @@ server.on('request', (req, res) => {
 
         case '/':
             res.writeHead(200, { 'Content-Type': 'text/html' });            
-            res.end(fs.readFileSync(`./loginpage.html`));
+            res.end(fs.readFileSync(`./Public/index.html`));
             break;
-
+        case '/components/':
+            res.writeHead(200, { 'Content-Type': '' });            
+            res.end(fs.readFileSync(`./Public/components/Messages.vue`));
         //WORK IN PROGRESS
         case '/messages':
             res.writeHead(200, { 'Content-Type': 'application/json' });
             const username = url.parse(req.url, true).username;
-            getMessages(username, (data) => {
-                res.end(JSON.stringify(data));
-            })
+            // getMessages(username, (data) => {
+            //     res.end(JSON.stringify(data));
+            // })
             // Test getMessages();
 
             res.end()

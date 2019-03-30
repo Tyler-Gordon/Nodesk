@@ -4,20 +4,25 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>test</title>
+    <title>Nodesk</title>
   </head>
   <body>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <div id="app">
-      <h1>{{message}}</h1>
+      <Messages v-bind:todos="todos"/>
       <button v-on:click="getMessages">GET MESSAGE DATA</button>
     </div>
-    <script>
+    <script type='module'>
+    import Messages from '/components/';
         var app = new Vue({
           el : "#app",
+          components:{
+            Messages
+          },
           data: {
-            message: "nothing"
+            user: 'User',
+            message: "Message",
+            date: Date()
           },
           methods: {
             
