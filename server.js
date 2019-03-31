@@ -44,7 +44,7 @@ server.on('request', (req, res) => {
             break;
 
         // Need to rework this later (reminder for Connor) 
-        case '/submit':
+        case '/register':
             if (req.method === 'POST') {
                 var body = '';
 
@@ -54,7 +54,25 @@ server.on('request', (req, res) => {
 
                 req.on('end', () => {
                     body = qs.parse(body);
-                    registrationStatus = registerUser(body.username, body.email, body.passwordCheck);
+                    const registrationStatus = registerUser(body.username, body.email, body.passwordCheck);
+                });
+            }
+
+            res.writeHead(200, { 'Content-Type': 'text/plain' });
+            res.end('Registration successful');
+            break;
+        
+        case '/login':
+            if (req.method === 'POST') {
+                var body = '';
+
+                req.on('data', data => {
+                    body += data;
+                });
+
+                req.on('end', () => {
+                    body = qs.parse(body);
+                    const status =  authenticateUser(body.email, body.passwordCheck);
                 });
             }
 
