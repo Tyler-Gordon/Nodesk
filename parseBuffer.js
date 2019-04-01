@@ -67,9 +67,10 @@ function unmaskBuffer (buffer) {
     let maskingKey = buffer.readUInt32BE(currentByte);
     currentByte += 4;
     
-    // Unmasking the data is a little tricky. The key itself is 32 bits or 4 bytes long
+    // Unmasking the data is a little tricky. The masking key is 32 bits or 4 bytes long
     // and matches each 4 byte section of the payload. So basically if were grabbing the first byte
-    // of the payload we need to XOR it with the first byte of the masking key and so on.
+    // of the payload we need to XOR it with the first byte of the masking key, the 5th byte of the payload
+    // would also need to be XOR'd with the first byte of the masking key.
     for (let i = 0; i < payloadLength; ++i) {
 
       // This is to track which byte of the masking key we want to work with

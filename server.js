@@ -9,6 +9,8 @@ const port = process.env.PORT || 8000
 var connectedUsers = [];
 
 // Our modules
+const hashPassword = require('./hashString').createHash;
+const getBody = require('./getBodyData').getBody;
 const createChat =  require('./chat').createChat;
 const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
@@ -21,66 +23,68 @@ server.on('request', (req, res) => {
     switch (req.url) {
 
         case '/':
-            res.writeHead(200, { 'Content-Type': 'text/html' });            
+            res.writeHead(200, {'Content-Type': 'image/jpeg,text/html'});
+            res.write(fs.readFileSync('./Public/images/lighthouse.jpg'));          
             res.end(fs.readFileSync(`./Public/index.html`));
             break;
-        case '/components/':
-            res.writeHead(200, { 'Content-Type': '' });            
-            res.end(fs.readFileSync(`./Public/components/Messages.vue`));
-        //WORK IN PROGRESS
+
         case '/messages':
             res.writeHead(200, { 'Content-Type': 'application/json' });
             const username = url.parse(req.url, true).username;
-            // getMessages(username, (data) => {
-            //     res.end(JSON.stringify(data));
-            // })
-            // Test getMessages();
-
-            res.end()
-
-        case '/chat':
-            res.writeHead(200, { 'Content-Type': 'text/html' });            
-            res.end(fs.readFileSync(`./public/messages.html`));
+            const messages = getMessages(username);
+            res.end(JSON.stringify(messages));
             break;
 
-        // Need to rework this later (reminder for Connor) 
+        case '/chat':
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(fs.readFileSync(`./Public/chat.html`));
+
+            res.end();
+            break;
+
         case '/register':
+            // If /register is accessed by a POST method we'll initiate the registration process
             if (req.method === 'POST') {
-                var body = '';
-
-                req.on('data', data => {
-                    body += data;
-                });
-
-                req.on('end', () => {
-                    body = qs.parse(body);
-                    const registrationStatus = registerUser(body.username, body.email, body.passwordCheck);
-                });
+                getBody((body) => {
+                    try {
+                        body = qs.parse(body);
+                        registerUser(body.username, body.email, body.passwordCheck);
+                        res.writeHead(200);            
+                        res.end();
+                    } catch (e) {
+                        console.log(e)
+                        res.writeHead(400);            
+                        res.end();
+                    }
+                });  
             }
-
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Registration successful');
+            // If /register is accessed by any other method, we're going to reroute them to the homepage
+            res.writeHead(301, { 'Location': '/' });
+            res.end();
             break;
         
         case '/login':
             if (req.method === 'POST') {
-                var body = '';
-
-                req.on('data', data => {
-                    body += data;
-                });
-
-                req.on('end', () => {
+                getBody((body) => {
                     body = qs.parse(body);
-                    const status =  authenticateUser(body.email, body.passwordCheck);
+                    let password = hashPassword(body.passwordCheck)
+                    const username = authenticateUser(body.email, password);
+                    if (!username) {
+                        res.writeHead(400);
+                        res.end();
+                    } else {
+                        res.setHead('Set-Cookie', [`Max-Age=1`])
+                        res.writeHead(301, { 'Location': '/chat' });
+                        res.end();
+                    }
                 });
+            } else {
+                res.writeHead(301, { 'Location': '/' });
+                res.end();
             }
-
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
-            res.end('Registration successful');
             break;
 
-        // If they attempt to go somewhere that's not allowed
+        // If they attempt to go somewhere that doesn't exist
         default:
             res.writeHead(404);
             res.end();
@@ -115,27 +119,23 @@ server.on('upgrade', (req, socket) => {
     // into a websocket
     socket.write(responseHeader.join('\r\n') + '\r\n\r\n'); // I want to make a socket.acceptWebsocket function
     
-    // For some reason this event and the 'connect' event don't fire? Maybe we should just do all this stuff before
-    // the 'data' event and make sure we have all this stuff connected.
-    socket.on('ready', () => {
-        // Grab the user's username and get all the chatIds they're linked to
-        // Then push to connectedUsers a local object that stores:
-        // the UserIds, ChatIds and socket they're connected to.
-        // userChatIDs = getChatIDs(userID);
-        // let user = {
-        //     userID : 'something',
-        //     chatIDs : userChatIDs,
-        //     sock : socket.ref()
-        // }
-        // connectedUsers.push(user)
+    // Grab the user's username and get all the chatIds they're linked to
+    // Then push to connectedUsers a local object that stores:
+    // the UserIds, ChatIds and socket they're connected to.
+    // userChatIDs = getChatIDs(userID);
+    // let user = {
+    //     userID : 'something',
+    //     chatIDs : userChatIDs,
+    //     sock : socket.ref()
+    // }
+    // connectedUsers.push(user)
         
-    });
 
     socket.on('data', buffer => {
         try {
             // Parses the buffer data received from client
             const userMessage = parseBuffer(buffer)
-
+            console.log(userMessage)
             // We stringify the data then pass it into constructBuffer
 
             const messageString = JSON.stringify(userMessage)
