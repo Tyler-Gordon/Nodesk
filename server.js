@@ -9,6 +9,7 @@ const port = process.env.PORT || 8000
 var connectedUsers = [];
 
 // Our modules
+const hashPassword = require('./hashString').createHash;
 const getBody = require('./getBodyData').getBody;
 const createChat =  require('./chat').createChat;
 const message = require('./messages');
@@ -22,31 +23,25 @@ server.on('request', (req, res) => {
     switch (req.url) {
 
         case '/':
-            res.writeHead(200, { 'Content-Type': 'text/html' });            
+            res.writeHead(200, {'Content-Type': 'image/jpeg,text/html'});
+            res.write(fs.readFileSync('./Public/images/lighthouse.jpg'));          
             res.end(fs.readFileSync(`./Public/index.html`));
             break;
 
-        case '/components/':
-            res.writeHead(200, { 'Content-Type': '' });            
-            res.end(fs.readFileSync(`./Public/components/Messages.vue`));
-
-        //WORK IN PROGRESS
         case '/messages':
             res.writeHead(200, { 'Content-Type': 'application/json' });
             const username = url.parse(req.url, true).username;
-            // getMessages(username, (data) => {
-            //     res.end(JSON.stringify(data));
-            // })
-            // Test getMessages();
-
-            res.end()
-
-        case '/chat':
-            res.writeHead(200, { 'Content-Type': 'text/html' });            
-            res.end(fs.readFileSync(`./Public/messages.html`));
+            const messages = getMessages(username);
+            res.end(JSON.stringify(messages));
             break;
 
-        // Need to rework this later (reminder for Connor) 
+        case '/chat':
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.write(fs.readFileSync(`./Public/chat.html`));
+
+            res.end();
+            break;
+
         case '/register':
             // If /register is accessed by a POST method we'll initiate the registration process
             if (req.method === 'POST') {
@@ -72,14 +67,14 @@ server.on('request', (req, res) => {
             if (req.method === 'POST') {
                 getBody((body) => {
                     body = qs.parse(body);
-                    const isAuthenticated = authenticateUser(body.email, body.passwordCheck);
-
-                    if (isAuthenticated) {
-                        res.setHead('Set-Cookie', [`Max-Age=1`])
-                        res.writeHead(301, { 'Location': '/messages' });
+                    let password = hashPassword(body.passwordCheck)
+                    const username = authenticateUser(body.email, password);
+                    if (!username) {
+                        res.writeHead(400);
                         res.end();
                     } else {
-                        res.writeHead(400);
+                        res.setHead('Set-Cookie', [`Max-Age=1`])
+                        res.writeHead(301, { 'Location': '/chat' });
                         res.end();
                     }
                 });

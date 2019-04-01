@@ -1,10 +1,11 @@
 const mongoClient = require('mongodb').MongoClient
 const crypto = require('crypto')
+const hashPassword = require('./hashString').hashString;
 const dataBase = 'learning-node';
 var dataBaseURL = 'mongodb://tyler:node2520@ds125073.mlab.com:25073/learning-node'
 
 var registerUser = (username, email, password) =>{
-    let encryptedPassword = crypto.createHmac('sha256', password).update('password').digest('hex');
+    let encryptedPassword = hashPassword(password)
 
     var userinfo = {
         username : username, 
