@@ -23,9 +23,21 @@ server.on('request', (req, res) => {
     switch (req.url) {
 
         case '/':
-            res.writeHead(200, {'Content-Type': 'image/jpeg,text/html'});
-            res.write(fs.readFileSync('./Public/images/lighthouse.jpg'));          
-            res.end(fs.readFileSync(`./Public/index.html`));
+            var stream = fs.createReadStream(`./Public/index.html`);
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            stream.pipe(res);      
+            break;
+
+        case '/images':
+            var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
+            res.writeHead(200, {'Content-Type': 'image/jpeg'});
+            stream.pipe(res)
+            break;
+
+        case '/chat':
+            var stream = fs.createReadStream(`./Public/chat.html`);
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            stream.pipe(res);
             break;
 
         case '/messages':
@@ -33,13 +45,6 @@ server.on('request', (req, res) => {
             const username = url.parse(req.url, true).username;
             const messages = getMessages(username);
             res.end(JSON.stringify(messages));
-            break;
-
-        case '/chat':
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.write(fs.readFileSync(`./Public/chat.html`));
-
-            res.end();
             break;
 
         case '/register':
