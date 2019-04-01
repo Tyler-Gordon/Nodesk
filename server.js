@@ -20,12 +20,21 @@ const constructBuffer = require('./constructBuffer').constructBuffer;
 
 
 server.on('request', (req, res) => {
+    console.log(req.url);
     switch (req.url) {
 
+        // Static files
         case '/':
             var stream = fs.createReadStream(`./Public/index.html`);
             res.writeHead(200, {'Content-Type': 'text/html'});
             stream.pipe(res);      
+            break;
+
+        case '/chat':
+            // Check authorization from cookie
+            var stream = fs.createReadStream(`./Public/chat.html`);
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            stream.pipe(res);
             break;
 
         case '/images':
@@ -34,19 +43,16 @@ server.on('request', (req, res) => {
             stream.pipe(res)
             break;
 
-        case '/chat':
-            var stream = fs.createReadStream(`./Public/chat.html`);
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            stream.pipe(res);
-            break;
-
+        // Getting the user's latest messages
         case '/messages':
+            // Check authorization from cookies
             res.writeHead(200, { 'Content-Type': 'application/json' });
             const username = url.parse(req.url, true).username;
-            const messages = getMessages(username);
+            const messages = message.getMessages(username);
             res.end(JSON.stringify(messages));
             break;
-
+        
+        // Form submission routes
         case '/register':
             // If /register is accessed by a POST method we'll initiate the registration process
             if (req.method === 'POST') {
@@ -99,7 +105,7 @@ server.on('request', (req, res) => {
 server.on('upgrade', (req, socket) => {
 
     // I want to write this section into a function
-    if (req.url !== '/messages'){
+    if (req.url !== '/chat'){
         socket.end('HTTP/1.1 400 Bad Request');
         return;
     }
