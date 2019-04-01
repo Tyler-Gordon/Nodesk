@@ -1,52 +1,66 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Nodesk</title>
-  </head>
-  <body>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <div id="app">
-      <Messages v-bind:todos="todos"/>
-      <button v-on:click="getMessages">GET MESSAGE DATA</button>
-    </div>
-    <script type='module'>
-    import Messages from '/components/';
-        var app = new Vue({
-          el : "#app",
-          components:{
-            Messages
-          },
-          data: {
-            user: 'User',
-            message: "Message",
-            date: Date()
-          },
-          methods: {
-            
-            getMessages: function(){ 
-              var xhr = new XMLHttpRequest();
+<html>
+    <head>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" href="loginpage.css">
+    </head>
+    <body onload="removeSignup()" class='container' style="background-image: url('images/lighthouse.jpg');background-repeat: no-repeat; background-size: 100% 100%; background-position:center;  background-attachment: fixed;">
+        <div class='row justify-content-center align-items-center' style='height: 100vh;'>
+            <div id='formholder' class='col-md-6 col-sm-12 card card-body mx-auto my-auto' style='background: rgba(255,255,255,0.8); box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);'>
+                <h1 class='card-title mx-auto' style="font-family:Verdana, Geneva, Tahoma, sans-serif; font-size:75px;">
+                    Nodesk
+                </h1>
+                <form id='loginForm' class='container' method="POST" action="/login">
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-primary float-left">Submit</button>
+                    <button type='button' class='btn btn-primary float-right' onclick='changeToSignup()'>Sign up</button>
+                </form>
 
-              xhr.onload = function () {
-              if (xhr.status >= 200 && xhr.status < 300) {
-                var serverData = JSON.parse(xhr.responseText)
-                app.$data.message = serverData.message
-              }
-              };
-
-              xhr.open('GET', 'http://localhost:8000/messages?username=A0101');
-              xhr.send();
-              
+                <form id='signupForm' class='container' method="POST" action="/signup" style='display: none;'>
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                            <label for="username">Email address</label>
+                            <input type="username" class="form-control" id="username" aria-describedby="usernameHelp" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" id="password" placeholder="Password">
+                    </div>
+                    <div class="form-group">
+                            <label for="passwordcheck">Password</label>
+                            <input type="password" class="form-control" id="passwordcheck" placeholder="Re-type password">
+                    </div>
+                    <button type="submit" class="btn btn-primary float-left">Submit</button>
+                    <button type="button" onclick='returnToLogin()' class="btn btn-primary float-right">Back</button>
+                </form>
+            </div>
+        </div>
+        <script>
+            const signup = document.querySelector('#signupForm');
+            const login = document.querySelector('#loginForm');
+            function changeToSignup(){
+                login.parentNode.appendChild(signup);
+                login.parentNode.removeChild(login);
+                document.getElementById('signupForm').style = "display: inline;"
             }
-          },
-          mutations:{
-            saveMessage(message){
-              this.message = message
+            function removeSignup(){
+                signup.parentNode.removeChild(signup);
             }
-          }
-        })
-    </script>
-  </body>
+            function returnToLogin(){
+                signup.parentNode.appendChild(login);
+                signup.parentNode.removeChild(signup);
+                //document.getElementById('signupForm').style = "display: none;"
+            }
+        </script>
+    </body>
 </html>

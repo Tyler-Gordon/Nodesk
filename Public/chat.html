@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+        <title>Nodesk</title>
+    </head>
+
+    <body style='overflow: hidden;'>
+        <div id='app' class='row justify-content-center align-items-center' style='height: 100vh;'>
+            <div class='col-4 h-100' style='border-right-style:solid;border-color:black;border-width: 1px;'>
+                <div>
+                    <button v-on:click="getMessages">GET MESSAGE DATA</button>
+                </div>
+            </div>
+            <span class='col-8 h-100'>
+                <div>
+                    <Messages v-bind:messages="messages"/>
+                </div>
+            </span> 
+        </div>
+        
+        <script>
+                window.onload = () =>{
+                var app = new Vue({
+                    el : "#app",
+                    components:{
+                        'Messages': Messages,
+                        'MessageItem' : MessageItem
+                    },
+                    data :{
+                        // {
+                        //     user: 'User',
+                        //     message: "Message",
+                        //     date: Date()
+                        //     }
+                            messages :[]
+                    },
+                    methods: {
+                        getMessages: function(){ 
+                          var xhr = new XMLHttpRequest();
+                          xhr.onload = function () {
+                          if (xhr.status >= 200 && xhr.status < 300) {
+                            //var serverData = JSON.parse(xhr.responseText)
+                            var serverData = xhr.responseText
+                            app.$data.messages.push(serverData['messages'])
+                            console.log(app.$data)
+                          }
+                          };
+                          xhr.open('GET', 'http://localhost:8000/messages');
+                          xhr.send();
+                        }
+                    },
+                    mutations:{
+                        saveMessage(message){
+                            this.message = message
+                        }
+                    }
+                })}
+                var MessageItem = Vue.component('MessageItem',{
+                    name: 'MessageItem',
+                    props:['message'],
+                    template: '<div><p>{{message.user}} - {{message.message}}</p></div>'
+                })
+                var Messages = Vue.component('Messages',{
+                    name: 'Messages',
+                    components:{
+                        'MessageItem' : MessageItem
+                    },
+                    props : ['messages'],
+                    template: '<div><div v-bind:key="message.user" v-for="message in messages"><MessageItem v-bind:message="message"/></div></div>'
+                })
+            </script>
+    </body>
+</html>
