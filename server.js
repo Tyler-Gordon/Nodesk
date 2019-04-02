@@ -10,17 +10,16 @@ var connectedUsers = [];
 
 // Our modules
 const hashPassword = require('./hashString').createHash;
-const getBody = require('./getBodyData').getBody;
+const getBody = require('./getStreamData').getStreamData;
 const createChat =  require('./chat').createChat;
 const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
 const createKey = require('./createSocketKey').createKey;
-const parseBuffer = require('./parseBuffer').parseBuffer;
-const constructBuffer = require('./constructBuffer').constructBuffer;
+const unmaskBuffer = require('./unmaskBuffer').unmaskBuffer;
+const constructPayloadHeader = require('./constructPayloadHeader').constructPayloadHeader;
 
 
 server.on('request', (req, res) => {
-    console.log(req.url);
     switch (req.url) {
 
         // Static files
@@ -32,7 +31,7 @@ server.on('request', (req, res) => {
 
         case '/chat':
             // Check authorization from cookie
-            var stream = fs.createReadStream(`./Public/chat.html`);
+            var stream = fs.createReadStream(`./Public/messages.html`);
             res.writeHead(200, { 'Content-Type': 'text/html' });
             stream.pipe(res);
             break;
@@ -144,21 +143,23 @@ server.on('upgrade', (req, socket) => {
 
     socket.on('data', buffer => {
         try {
-            // Parses the buffer data received from client
-            const userMessage = parseBuffer(buffer)
-            console.log(userMessage)
-            // We stringify the data then pass it into constructBuffer
+            // Unmasks the buffer received from client
+            const bufferedUserMessage = unmaskBuffer(buffer);
+            const userPayloadLength = bufferedUserMessage.byteLength
 
-            const messageString = JSON.stringify(userMessage)
-            const serverMessage = constructBuffer(messageString)
+            // Parses the buffer for use with the database and other functions
+            const parsedUserMessage = JSON.parse(bufferedUserMessage.toString('utf8'));
+            console.log(parsedUserMessage)
+            
+            // Create the header to send back to the client
+            const payloadHeader = constructPayloadHeader(userPayloadLength)
+            const payloadHeaderLength = payloadHeader.byteLength
 
             // This will echo the message back to the client
-            socket.write(serverMessage)
-
-            // This sends the user message in json format to the database
-
-            // User auth and sending user info has to be implemented first
-            // addMessage(userMessage)
+            socket.write(Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength));
+            
+            // Add the message to the database
+            // message.addMessage(parsedUserMessage);
 
             //TODO maintain a list of userIDs that are connected
             //TODO sendToOnlineClients(serverMessage);

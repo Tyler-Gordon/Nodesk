@@ -1,4 +1,4 @@
-function getBody(stream, callback) {
+function getStreamData(stream, callback) {
     var body = '';
 
     stream.on('data', data => {
@@ -11,5 +11,5 @@ function getBody(stream, callback) {
 }
 
 module.exports = {
-    getBody
+    getStreamData
 }

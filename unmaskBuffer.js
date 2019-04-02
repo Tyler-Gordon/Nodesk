@@ -1,18 +1,4 @@
-// Not a huge fan of the function name but I guess I shouldn't complain
-// since it technically is parsing a buffer, going to come back to this later on my own probably.
-exports.parseBuffer = (buffer) => {
-  const rawData = unmaskBuffer(buffer);
-
-  // Not to be confused with <str>.toString() method from base JavaScript.
-  // This is a functionality of the Buffer object in node
-  return JSON.parse(rawData.toString('utf8'))
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// I thought this was a more appropriate name for the functionality
-// rather than parseBuffer since it wasn't actually parsing anything.
+// Unmasks a text buffer
 function unmaskBuffer (buffer) {
 
     // Monitor what byte we want to work with
@@ -104,4 +90,8 @@ function unmaskBuffer (buffer) {
     // That being said there'd still be a ton of work to do if we wanted to make this 
     // less dependant on our current system.
     return payload
+}
+
+module.exports = {
+  unmaskBuffer
 }
