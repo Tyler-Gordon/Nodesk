@@ -20,9 +20,14 @@ const constructBuffer = require('./constructBuffer').constructBuffer;
 
 
 server.on('request', (req, res) => {
-    console.log(req.url);
-    switch (req.url) {
-
+    // console.log(req.url);
+    urlParsed = url.parse(req.url, true);
+    console.log(req.url)
+    //console.log(urlBits);
+    //path = urlBits.pathname;
+    query = urlParsed.query
+    switch (urlParsed.pathname) {
+        
         // Static files
         case '/':
             var stream = fs.createReadStream(`./Public/index.html`);
@@ -46,12 +51,15 @@ server.on('request', (req, res) => {
         // Getting the user's latest messages
         case '/messages':
             // Check authorization from cookies
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            const username = url.parse(req.url, true).username;
-            const messages = message.getMessages(username);
-            res.end(JSON.stringify(messages));
+            // res.writeHead(200, { 'Content-Type': 'application/json' });
+            // const chatid = query.chatid
+            // console.log(chatid)
+            // message.getMessages(chatid,(data)=>{
+            //     console.log(data)
+            //     res.end(JSON.stringify(data));
+            // });
+            console.log(query)
             break;
-        
         // Form submission routes
         case '/register':
             // If /register is accessed by a POST method we'll initiate the registration process

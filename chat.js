@@ -17,4 +17,7 @@ var createChat = (users) =>{
     })
 }
 
+var getChatIDs = (user) => {
+    // do database shit
+}
 module.exports = {createChat};
