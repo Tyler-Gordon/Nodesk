@@ -62,7 +62,7 @@ server.on('request', (req, res) => {
                 getBody(req, (body) => {
                     try {
                         body = qs.parse(body);
-                        registerUser(body.username, body.email, body.passwordCheck);
+                        registerUser(body.username, body.email, body.password);
                         res.writeHead(200);            
                         res.end();
                     } catch (e) {
@@ -81,13 +81,13 @@ server.on('request', (req, res) => {
             if (req.method === 'POST') {
                 getBody(req, (body) => {
                     body = qs.parse(body);
-                    let password = hashPassword(body.passwordCheck)
+                    let password = hashPassword(body.password)
                     authenticateUser(body.email, password, (username) => {
                         if (!username) {
                             res.writeHead(400);
                             res.end();
                         } else {
-                            res.setHead('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3},Username=${username}`])
+                            res.setHeader('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3},Username=${username}`])
                             res.writeHead(301, { 'Location': '/chat' });
                             res.end();
                         }
