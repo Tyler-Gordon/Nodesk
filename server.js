@@ -84,10 +84,12 @@ server.on('request', (req, res) => {
                     let password = hashPassword(body.password)
                     authenticateUser(body.email, password, (username) => {
                         if (!username) {
-                            res.writeHead(400);
+                            res.writeHead(301, { 'Location': '/' });
                             res.end();
                         } else {
-                            res.setHeader('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3},Username=${username}`])
+                            // numbers correspond to 3 hours
+                            res.setHeader('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3}`])
+                            res.setHeader('Set-Cookie', [`Username=${username}`]) 
                             res.writeHead(301, { 'Location': '/chat' });
                             res.end();
                         }
