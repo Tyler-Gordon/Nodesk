@@ -14,7 +14,8 @@
         <div id='app' class='row justify-content-center align-items-center' style='height: 100vh;'>
             <div class='col-4 h-100' style='border-right-style:solid;border-color:black;border-width: 1px;'>
                 <div>
-                    <button v-on:click="getMessages">GET MESSAGE DATA</button>
+                    <button v-on:click='getMessages'>GET MESSAGE DATA</button>
+                    <input type='text' id='chatid'>
                 </div>
             </div>
             <span class='col-8 h-100'>
@@ -41,19 +42,25 @@
                             messages :[]
                     },
                     methods: {
-                        getMessages: function(){ 
+                        callServer : function(chatid){ 
                           var xhr = new XMLHttpRequest();
                           xhr.onload = function () {
                           if (xhr.status >= 200 && xhr.status < 300) {
                             //var serverData = JSON.parse(xhr.responseText)
-                            var serverData = xhr.responseText
-                            app.$data.messages.push(serverData['messages'])
-                            console.log(app.$data)
+                            // var serverData = xhr.responseText
+                            // app.$data.messages.push(serverData['messages'])
+                            // console.log(app.$data)
+                            console.log('OK');
                           }
                           };
-                          xhr.open('GET', 'http://localhost:8000/messages');
+                          xhr.open("GET", `messages?userid=${chatid}`,true);
                           xhr.send();
-                        }
+                        },
+                        getMessages : function(){
+                            const chatid = document.getElementById('chatid').value;
+                            console.log(chatid);
+                            this.callServer(chatid);
+                        },
                     },
                     mutations:{
                         saveMessage(message){

@@ -17,4 +17,16 @@ var createChat = (users) =>{
     })
 }
 
-module.exports = {createChat};
+var getChatIDs = (username,callback) => {
+    mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
+        // access the database
+        const database = client.db(dataBase);
+        // get the 'chats' table
+        var userCollection = database.collection('users')
+        // create a model for the chat, this will allow easy, predictable database entries
+        userCollection.findOne(({"username":username}),(err,data)=>{
+            callback(data);
+        })
+    })
+}
+module.exports = {createChat,getChatIDs};

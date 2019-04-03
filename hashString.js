@@ -1,11 +1,11 @@
 const crypto = require('crypto');
 
 function createHash(string) {
-    let key = crypto.createHmac("sha256")
+    let hash = crypto.createHmac("sha256",'')
     .update(string)
     .digest('hex');
 
-    return key
+    return hash
 }
 
 module.exports = {

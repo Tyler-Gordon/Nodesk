@@ -17,7 +17,7 @@ var addMessage = (messageObject) =>{
 }
 
 // Grabs all messages from the given chatid
-var getMessages = (chatId) =>{
+var getMessages = (chatId, callback) =>{
     mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
         // get the database
         const database = client.db(dataBase);
@@ -25,7 +25,7 @@ var getMessages = (chatId) =>{
         var collection = database.collection('chats')
         // find the messages based on the chat id
         collection.findOne(({'_id':chatId}),(err,data)=>{
-            return data
+            callback(data);
         })
     })
 }
