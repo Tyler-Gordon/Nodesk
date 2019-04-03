@@ -9,7 +9,7 @@
             // Create WebSocket connection.
             // THIS IS AFTER YOU GET ALL INFO TO LOAD THE PAGE
             
-            const ws = new WebSocket('ws://localhost:8000/messages', 'json');
+            const ws = new WebSocket('ws://localhost:8000/chat', 'json');
             ws.addEventListener('open', () => {
                 console.log('Connection opened.')
                 const data = { message: 'Hello from the client!' }
