@@ -12,6 +12,7 @@ var connectedUsers = [];
 const hashPassword = require('./hashString').createHash;
 const getBody = require('./getStreamData').getStreamData;
 const createChat =  require('./chat').createChat;
+const authenticateUser = require('./userLogin').authenticateUser;
 const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
 const createKey = require('./createSocketKey').createKey;
@@ -31,7 +32,7 @@ server.on('request', (req, res) => {
 
         case '/chat':
             // Check authorization from cookie
-            var stream = fs.createReadStream(`./Public/messages.html`);
+            var stream = fs.createReadStream(`./Public/chat.html`);
             res.writeHead(200, { 'Content-Type': 'text/html' });
             stream.pipe(res);
             break;
@@ -55,7 +56,7 @@ server.on('request', (req, res) => {
         case '/register':
             // If /register is accessed by a POST method we'll initiate the registration process
             if (req.method === 'POST') {
-                getBody((body) => {
+                getBody(req, (body) => {
                     try {
                         body = qs.parse(body);
                         registerUser(body.username, body.email, body.passwordCheck);
@@ -75,18 +76,19 @@ server.on('request', (req, res) => {
         
         case '/login':
             if (req.method === 'POST') {
-                getBody((body) => {
+                getBody(req, (body) => {
                     body = qs.parse(body);
                     let password = hashPassword(body.passwordCheck)
-                    const username = authenticateUser(body.email, password);
-                    if (!username) {
-                        res.writeHead(400);
-                        res.end();
-                    } else {
-                        res.setHead('Set-Cookie', [`Max-Age=1`])
-                        res.writeHead(301, { 'Location': '/chat' });
-                        res.end();
-                    }
+                    authenticateUser(body.email, password, (username) => {
+                        if (!username) {
+                            res.writeHead(400);
+                            res.end();
+                        } else {
+                            res.setHead('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3},Username=${username}`])
+                            res.writeHead(301, { 'Location': '/chat' });
+                            res.end();
+                        }
+                    });
                 });
             } else {
                 res.writeHead(301, { 'Location': '/' });
@@ -156,7 +158,8 @@ server.on('upgrade', (req, socket) => {
             const payloadHeaderLength = payloadHeader.byteLength
 
             // This will echo the message back to the client
-            socket.write(Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength));
+            const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
+            socket.write(returnPayload);
             
             // Add the message to the database
             // message.addMessage(parsedUserMessage);
