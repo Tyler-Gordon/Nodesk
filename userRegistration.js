@@ -1,6 +1,6 @@
 const mongoClient = require('mongodb').MongoClient
 const crypto = require('crypto')
-const hashPassword = require('./hashString').hashString;
+const hashPassword = require('./hashString').createHash;
 const dataBase = 'learning-node';
 var dataBaseURL = 'mongodb://tyler:node2520@ds125073.mlab.com:25073/learning-node'
 
