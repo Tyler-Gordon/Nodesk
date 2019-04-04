@@ -10,17 +10,21 @@
         <title>Nodesk</title>
     </head>
 
-    <body style='overflow: hidden;'>
-        <div id='app' class='row justify-content-center align-items-center' style='height: 100vh;'>
-            <div class='col-4 h-100' style='border-right-style:solid;border-color:black;border-width: 1px;'>
-                <div>
-                    <button v-on:click='getMessages'>GET MESSAGE DATA</button>
-                    <input type='text' id='chatid'>
-                </div>
+    <body style='overflow-x: hidden; width:100%;'>
+        <div id='app' class='row justify-content-center align-items-center' style='height: 100vh; '>
+            <div class='col-md-3 col-sm-12 h-100 bg-dark' style='border-right-style:solid;border-color:black;border-width: 1px; overflow-y: auto; max-height: 100vh;height:100vh;'>
+                <Chats v-bind:chats='chats'/>
             </div>
-            <span class='col-8 h-100'>
-                <div>
+            <span id='messages_span' class='col-md-9 col-sm-12 h-100' style='width:100%;'>
+                <div class='row bg-success' style='height: 10%;'>
+                    chats
+                </div>
+                <div class='row' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;'>
                     <Messages v-bind:messages="messages"/>
+                </div>
+                <div class='row bg-dark' style='bottom: 0%; height: 10%;'>
+                    <button v-on:click='getChats'>GET MESSAGE DATA</button>
+                    <button v-on:click='getMessages'>Get Message</button>
                 </div>
             </span> 
         </div>
@@ -31,47 +35,64 @@
                     el : "#app",
                     components:{
                         'Messages': Messages,
-                        'MessageItem' : MessageItem
+                        'MessageItem' : MessageItem,
+                        'Chats' : Chats,
+                        'ChatItem': ChatItem
                     },
                     data :{
-                        // {
-                        //     user: 'User',
-                        //     message: "Message",
-                        //     date: Date()
-                        //     }
-                            messages :[]
+                            messages : [],
+                            chats:[]
                     },
                     methods: {
                         callServer : function(chatid){ 
                           var xhr = new XMLHttpRequest();
                           xhr.onload = function () {
                           if (xhr.status >= 200 && xhr.status < 300) {
-                            //var serverData = JSON.parse(xhr.responseText)
+                            // var serverData = JSON.parse(xhr.responseText)
                             // var serverData = xhr.responseText
-                            // app.$data.messages.push(serverData['messages'])
-                            // console.log(app.$data)
-                            console.log('OK');
                           }
                           };
                           xhr.open("GET", `messages?userid=${chatid}`,true);
                           xhr.send();
                         },
                         getMessages : function(){
-                            const chatid = document.getElementById('chatid').value;
-                            console.log(chatid);
-                            this.callServer(chatid);
+                            // const chatid = document.getElementById('chatid').value;
+                            // console.log(chatid);
+                            // this.callServer(chatid);
+                            var sample = [
+                                {"user": 'Tyler',
+                                 "content": "START"
+                                },
+                                {"user": 'Connor',
+                                 "content": "Shut up"}
+                            ]
+                            sample.forEach(element => {
+                                app.$data.messages.push(element)
+                            });
                         },
-                    },
-                    mutations:{
-                        saveMessage(message){
-                            this.message = message
+                        sendMessage : async function(){
+                            var message = document.getElementById('message').value
+                            var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+                            var message_model = {
+                                "user": username,
+                                "content":message
+                            }
+                            await app.$data.messages.push(message_model)
+                            document.getElementById('span_content').scrollIntoView(false);
+                        },
+                        getChats: function(){
+                            var sample_chats = [{'chatid':'chat 1'},{'chatid':'chat 2'}]
+                            sample_chats.forEach(element => {
+                                app.$data.chats.push(element.chatid)
+                            });
+                            console.log(app.$data.chats)
                         }
-                    }
+                    },
                 })}
                 var MessageItem = Vue.component('MessageItem',{
                     name: 'MessageItem',
                     props:['message'],
-                    template: '<div><p>{{message.user}} - {{message.message}}</p></div>'
+                    template: '<p>{{message.user}} - {{message.content}}</p>'
                 })
                 var Messages = Vue.component('Messages',{
                     name: 'Messages',
@@ -79,7 +100,25 @@
                         'MessageItem' : MessageItem
                     },
                     props : ['messages'],
-                    template: '<div><div v-bind:key="message.user" v-for="message in messages"><MessageItem v-bind:message="message"/></div></div>'
+                    template: '<div><div v-bind:key="i" v-for="(message,i) in messages"><MessageItem v-bind:message="message"/></div></div>'
+                })
+                var ChatItem = Vue.component('ChatItem',{
+                    name: 'ChatItem',
+                    props:['chat'],
+                    methods :{
+                        initializeChat : function(){
+                            console.log(this.$parent._self.$parent.getMessages())
+                        }
+                    },
+                    template: '<p v-on:click="initializeChat">{{chat}}</p>'
+                })
+                var Chats = Vue.component('Chats',{
+                    name: 'Chats',
+                    components:{
+                        'ChatItem' : ChatItem
+                    },
+                    props : ['chats'],
+                    template: '<div><button class="btn btn-light" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;"><ChatItem v-bind:chat="chat"/></button></div>'
                 })
             </script>
     </body>
