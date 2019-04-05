@@ -23,12 +23,7 @@ const constructPayloadHeader = require('./constructPayloadHeader').constructPayl
 
 
 server.on('request', (req, res) => {
-<<<<<<< HEAD
     const parsedUrl = url.parse(req.url, true);
-=======
-    const parsedUrl = url.parse(req.url,true)
-    console.log(parsedUrl.pathname)
->>>>>>> VueBranch
     switch (parsedUrl.pathname) {
 
         // Static files
@@ -85,7 +80,6 @@ server.on('request', (req, res) => {
             break;
 
         // Getting the user's latest messages
-<<<<<<< HEAD
             case '/messages':
             var chatId = url.parse(req.url, true).chatId;
             var user = qs.parse(req.headers.cookie).Username;
@@ -102,7 +96,6 @@ server.on('request', (req, res) => {
                 res.writeHead(301, { 'Location': '/' });
                 res.end();
             }
-=======
         case '/messages':
             res.writeHead(200, { 'Content-Type': 'application/json' });
             const chatid = parsedUrl.query.chatid
@@ -112,7 +105,6 @@ server.on('request', (req, res) => {
                 //console.log(data)
                 res.end(JSON.stringify(data));
             });
->>>>>>> VueBranch
             break;
 
         // Form submission routes
