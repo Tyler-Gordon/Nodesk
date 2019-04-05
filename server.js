@@ -7,10 +7,12 @@ const url = require('url');
 // Environment Variables
 const port = process.env.PORT || 8000
 var connectedUsers = [];
+var openChats = [];
 
 // Our modules
 const hashPassword = require('./hashString').createHash;
 const getBody = require('./getStreamData').getStreamData;
+const connection = require('./connection');
 const chat =  require('./chat');
 const authenticateUser = require('./userLogin').authenticateUser;
 const message = require('./messages');
@@ -21,7 +23,8 @@ const constructPayloadHeader = require('./constructPayloadHeader').constructPayl
 
 
 server.on('request', (req, res) => {
-    switch (req.url) {
+    const parsedUrl = url.parse(req.url, true);
+    switch (parsedUrl.pathname) {
 
         // Static files
         case '/':
@@ -42,20 +45,33 @@ server.on('request', (req, res) => {
                 res.end();
             }
             break;
+
         case '/chatids':
             var user = qs.parse(req.headers.cookie).Username;
             if (connectedUsers.includes(user)) {
-                chat.getChatIDs(user,(data)=>{
-                    console.log(JSON.stringify(data));
-                    res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.write(JSON.stringify(data));
+                try {
+                    chat.getChatIDs(user, (data)=> {
+                        data.forEach(chatId => {
+                            connection.addOpenChats(openChats, chatId);
+                            chat.getChatUsers(chatId, (users) => {
+                                users.forEach(username => {
+                                    connection.addOpenChatUsers(openChats, chatId, username);
+                                });
+                            });
+                        });
+                        console.log(openChats);
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.write(JSON.stringify(data));
+                        res.end();
+                    });
+                } catch (error) {
                     res.end();
-                });
+                }
             } else {
                 res.writeHead(301, { 'Location': '/' });
                 res.end();
             }
-            
+            break;
 
         case '/images':
             var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
@@ -65,23 +81,23 @@ server.on('request', (req, res) => {
 
         // Getting the user's latest messages
             case '/messages':
+            var chatId = url.parse(req.url, true).chatId;
             var user = qs.parse(req.headers.cookie).Username;
             if (connectedUsers.includes(user)) {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(file)
+                try {
+                    message.getMessages(chatId, (messages) => {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(messages));
+                    });
+                } catch (error) {
+                    res.end();
+                }
             } else {
                 res.writeHead(301, { 'Location': '/' });
                 res.end();
             }
-            // res.writeHead(200, { 'Content-Type': 'application/json' });
-            // const chatid = query.chatid
-            // console.log(chatid)
-            // message.getMessages(chatid,(data)=>{
-            //     console.log(data)
-            //     res.end(JSON.stringify(data));
-            // });
-            console.log(query)
             break;
+
         // Form submission routes
         case '/register':
             // If /register is accessed by a POST method we'll initiate the registration process
@@ -138,7 +154,6 @@ server.on('request', (req, res) => {
 
 server.on('upgrade', (req, socket) => {
 
-    // I want to write this section into a function
     if (req.url !== '/chat'){
         socket.end('HTTP/1.1 400 Bad Request');
         return;
@@ -158,23 +173,25 @@ server.on('upgrade', (req, socket) => {
         'Connection: Upgrade',
         `Sec-WebSocket-Accept: ${serverKey}`,
         'Sec-WebSocket-Protocol: json'];
-    // I want to write this section into a function
 
-    // This establishes the connection and turns the current TCP socket
-    // into a websocket
-    socket.write(responseHeader.join('\r\n') + '\r\n\r\n'); // I want to make a socket.acceptWebsocket function
-    
-    // Grab the user's username and get all the chatIds they're linked to
-    // Then push to connectedUsers a local object that stores:
-    // the UserIds, ChatIds and socket they're connected to.
-    // userChatIDs = getChatIDs(userID);
-    // let user = {
-    //     userID : 'something',
-    //     chatIDs : userChatIDs,
-    //     sock : socket.ref()
-    // }
-    // connectedUsers.push(user)
-        
+    // This establishes the connection and turns the current TCP socket into a websocket
+    socket.write(responseHeader.join('\r\n') + '\r\n\r\n');
+
+    // Add a reference to the user's socket in all chats the user is connected to
+    var user = qs.parse(req.headers.cookie).Username;
+
+    chat.getChatIDs(user, (chatIds) => {
+        // We have to add a reference to the socket in each chatId, this ends up allowing us to
+        // push messages to all connected users more easily
+        chatIds.forEach(chatId => {
+            connection.getConnectedUsers(openChats, chatId, (user) => {
+                if (connectedUsers.includes(user.user)) {
+                    user.socket = socket.ref();
+                }
+            });
+        });
+    });
+
 
     socket.on('data', buffer => {
         try {
@@ -190,16 +207,17 @@ server.on('upgrade', (req, socket) => {
             const payloadHeader = constructPayloadHeader(userPayloadLength)
             const payloadHeaderLength = payloadHeader.byteLength
 
-            // This will echo the message back to the client
-            const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
-            socket.write(returnPayload);
-            
-            // Add the message to the database
+            // Add the messages to the database
             // message.addMessage(parsedUserMessage);
 
-            //TODO maintain a list of userIDs that are connected
-            //TODO sendToOnlineClients(serverMessage);
-            //TODO security and stuff
+            // We construct the return payload from header and the unmasked payload
+            // Then send it to all users that are connected
+            const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
+            connection.getConnectedUsers(openChats, parsedUserMessage.chatId, (user) => {
+                if (connectedUsers.includes(user.user)) {
+                    user.socket.write(returnPayload);
+                }
+            });
 
         } catch (e) {
             // I've thrown a couple errors in parseBuffer instead of returning null.
@@ -207,7 +225,6 @@ server.on('upgrade', (req, socket) => {
             console.log(e.message)
         }
     });
-
 });
             
 
