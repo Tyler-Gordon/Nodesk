@@ -33,6 +33,7 @@
         
         <script>
                 window.onload = () =>{
+                const ws = new WebSocket('ws://localhost:8000/chat', 'json');
                 var app = new Vue({
                     el : "#app",
                     components:{
@@ -43,7 +44,8 @@
                     },
                     data :{
                             messages : [],
-                            chats:[]
+                            chats:[],
+                            current_chatid:''
                     },
                     methods: {
                         getChats : function(){ 
@@ -74,6 +76,7 @@
                                         "date" : message.date
                                         }
                                     app.$data.messages.push(message_model)
+                                    app.$data.current_chatid = chatid
                                 })
                             }
                             };
@@ -84,10 +87,13 @@
                             var message = document.getElementById('message').value
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
                             var message_model = {
+                                "chatid": app.$data.current_chatid,
                                 "user": username,
-                                "content":message
+                                "content":message,
+                                "date": Date()
                             }
-                            await app.$data.messages.push(message_model)
+                            //await app.$data.messages.push(message_model)
+                            ws.send(JSON.stringify(message_model))
                             document.getElementById('span_content').scrollIntoView(false);
                         },
                         // getChats: function(){
