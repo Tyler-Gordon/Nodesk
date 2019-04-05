@@ -11,7 +11,7 @@ var connectedUsers = [];
 // Our modules
 const hashPassword = require('./hashString').createHash;
 const getBody = require('./getStreamData').getStreamData;
-const createChat =  require('./chat').createChat;
+const chat =  require('./chat');
 const authenticateUser = require('./userLogin').authenticateUser;
 const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
@@ -32,9 +32,15 @@ server.on('request', (req, res) => {
 
         case '/chat':
             // Check authorization from cookie
-            var stream = fs.createReadStream(`./Public/chat.html`);
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            stream.pipe(res);
+            var file = fs.readFileSync(`./Public/chat.html`);
+            var user = qs.parse(req.headers.cookie).Username;
+            if (connectedUsers.includes(user)) {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(file)
+            } else {
+                res.writeHead(301, { 'Location': '/' });
+                res.end();
+            }
             break;
 
         case '/images':
@@ -44,8 +50,15 @@ server.on('request', (req, res) => {
             break;
 
         // Getting the user's latest messages
-        case '/messages':
-            // Check authorization from cookies
+            case '/messages':
+            var user = qs.parse(req.headers.cookie).Username;
+            if (connectedUsers.includes(user)) {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end(file)
+            } else {
+                res.writeHead(301, { 'Location': '/' });
+                res.end();
+            }
             // res.writeHead(200, { 'Content-Type': 'application/json' });
             // const chatid = query.chatid
             // console.log(chatid)
@@ -87,7 +100,8 @@ server.on('request', (req, res) => {
                             res.writeHead(301, { 'Location': '/' });
                             res.end();
                         } else {
-                            // numbers correspond to 3 hours
+                            connectedUsers.push(username);
+                            // Max-Age set to 3 hours
                             res.setHeader('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3}`])
                             res.setHeader('Set-Cookie', [`Username=${username}`]) 
                             res.writeHead(301, { 'Location': '/chat' });
