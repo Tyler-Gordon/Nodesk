@@ -17,7 +17,7 @@ var createChat = (users) =>{
     })
 }
 
-var getChatUsers = (chatid)=>{
+var getChatUsers = (chatid,callback)=>{
     mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
         // access the database
         const database = client.db(dataBase);
