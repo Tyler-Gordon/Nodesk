@@ -22,7 +22,9 @@ const constructPayloadHeader = require('./constructPayloadHeader').constructPayl
 
 
 server.on('request', (req, res) => {
-    switch (req.url) {
+    const parsedUrl = url.parse(req.url,true)
+    console.log(parsedUrl.pathname)
+    switch (parsedUrl.pathname) {
 
         // Static files
         case '/':
@@ -62,15 +64,14 @@ server.on('request', (req, res) => {
 
         // Getting the user's latest messages
         case '/messages':
-            // Check authorization from cookies
-            // res.writeHead(200, { 'Content-Type': 'application/json' });
-            // const chatid = query.chatid
-            // console.log(chatid)
-            // message.getMessages(chatid,(data)=>{
-            //     console.log(data)
-            //     res.end(JSON.stringify(data));
-            // });
-            console.log(query)
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            const chatid = parsedUrl.query.chatid
+            //console.log(chatid)
+            message.getMessages(chatid,(data)=>{
+                //console.log(data)
+                //console.log(data)
+                res.end(JSON.stringify(data));
+            });
             break;
         // Form submission routes
         case '/register':
