@@ -42,6 +42,15 @@ server.on('request', (req, res) => {
                 res.end();
             }
             break;
+        case '/chatids':
+            user = qs.parse(req.headers.cookie).Username
+            console.log(user) 
+            chat.getChatIDs(user,(data)=>{
+                console.log(JSON.stringify(data))
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write(JSON.stringify(data))
+                res.end()
+            })  
 
         case '/images':
             var stream = fs.createReadStream('./Public/images/lighthouse.jpg')

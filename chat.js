@@ -25,8 +25,9 @@ var getChatIDs = (username,callback) => {
         var userCollection = database.collection('users')
         // create a model for the chat, this will allow easy, predictable database entries
         userCollection.findOne(({"username":username}),(err,data)=>{
-            callback(data);
+            console.log(data.chatids)
+            callback(data.chatids);
         })
     })
 }
-module.exports = {createChat,getChatIDs};
+module.exports = {createChat,getChatIDs};   
