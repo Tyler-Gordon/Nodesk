@@ -17,7 +17,7 @@ var createChat = (users) =>{
     })
 }
 
-var getChatUsers = (chatid)=>{
+var getChatUsers = (chatid, callback)=>{
     mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
         // access the database
         const database = client.db(dataBase);
@@ -25,7 +25,6 @@ var getChatUsers = (chatid)=>{
         var userCollection = database.collection('chats')
         // create a model for the chat, this will allow easy, predictable database entries
         userCollection.findOne(({"_id":chatid}),(err,data)=>{
-            console.log(data.users)
             callback(data.users);
         })
     })
@@ -39,9 +38,8 @@ var getChatIDs = (username,callback) => {
         var userCollection = database.collection('users')
         // create a model for the chat, this will allow easy, predictable database entries
         userCollection.findOne(({"username":username}),(err,data)=>{
-            console.log(data.chatids)
             callback(data.chatids);
         })
     })
 }
-module.exports = {createChat,getChatIDs};   
+module.exports = {createChat,getChatIDs,getChatUsers};   

@@ -20,14 +20,21 @@ exports.addOpenChatUsers = function(openChats, chatId, username) {
 }
 
 exports.addOpenChats = function(openChats, chatId) {
-    openChats.forEach(chat => {
-        if (!(chat.chatId === chatId)){
-            openChats.push({
-                chatId : chatId,
-                users : []
-            });
-        }
-    });
+    if (openChats.length === 0){
+        openChats.push({
+            chatId : chatId,
+            users : []
+        });
+    } else {
+        openChats.forEach(chat => {
+            if (!(chat.chatId === chatId)){
+                openChats.push({
+                    chatId : chatId,
+                    users : []
+                });
+            }
+        });
+    }
 }
 
 exports.getConnectedUsers = function(openChats, chatId, callback) {

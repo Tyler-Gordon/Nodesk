@@ -50,7 +50,10 @@ server.on('request', (req, res) => {
             var user = qs.parse(req.headers.cookie).Username;
             if (connectedUsers.includes(user)) {
                 try {
+                    
                     chat.getChatIDs(user, (data)=> {
+                        // Super messy but it's working, don't want to look at this until later
+                        // This is for keeping track of logged in users
                         data.forEach(chatId => {
                             connection.addOpenChats(openChats, chatId);
                             chat.getChatUsers(chatId, (users) => {
@@ -59,7 +62,7 @@ server.on('request', (req, res) => {
                                 });
                             });
                         });
-                        console.log(openChats);
+
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.write(JSON.stringify(data));
                         res.end();
