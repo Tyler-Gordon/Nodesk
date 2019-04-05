@@ -23,14 +23,17 @@
                     <Messages v-bind:messages="messages"/>
                 </div>
                 <div class='row bg-light' style='bottom: 0%; height: 10%;'>
-                    <button v-on:click='getChats'>GET MESSAGE DATA</button>
-                    <button v-on:click='getMessages'>Get Message</button>
+                    <input  class='col-md-10' id='message'>
+                    <button class='col-md-2' v-on:click='sendMessage'>Send</button>
+                    <!-- <button v-on:click='getChats'>GET MESSAGE DATA</button> -->
+                    <!-- <button v-on:click='getMessages'>Get Message</button> -->
                 </div>
             </span> 
         </div>
         
         <script>
                 window.onload = () =>{
+                const ws = new WebSocket('ws://localhost:8000/chat', 'json');
                 var app = new Vue({
                     el : "#app",
                     components:{
@@ -41,7 +44,8 @@
                     },
                     data :{
                             messages : [],
-                            chats:[]
+                            chats:[],
+                            current_chatid:''
                     },
                     methods: {
                         getChats : function(){ 
@@ -50,7 +54,7 @@
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
                                 chats.forEach(element => {
-                                app.$data.chats.push(element)
+                                    app.$data.chats.push(element)
                                 });
                             }
                             };
@@ -58,29 +62,38 @@
                             xhr.send();
 
                         },
-                        getMessages : function(){
-                            // const chatid = document.getElementById('chatid').value;
-                            // console.log(chatid);
-                            // this.callServer(chatid);
-                            var sample = [
-                                {"user": 'Tyler',
-                                 "content": "START"
-                                },
-                                {"user": 'Connor',
-                                 "content": "Shut up"}
-                            ]
-                            sample.forEach(element => {
-                                app.$data.messages.push(element)
-                            });
+                        getMessages : function(chatid){
+                            app.$data.messages = []
+                            var xhr = new XMLHttpRequest();
+                            xhr.onload = function () {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                messages = JSON.parse(xhr.responseText).messages
+                                console.log(messages)
+                                messages.forEach(message =>{
+                                    var message_model = {
+                                        "user": message.user,
+                                        "content":message.content,
+                                        "date" : message.date
+                                        }
+                                    app.$data.messages.push(message_model)
+                                    app.$data.current_chatid = chatid
+                                })
+                            }
+                            };
+                            xhr.open("GET", `/messages?chatid=${chatid}`,true);
+                            xhr.send();
                         },
                         sendMessage : async function(){
                             var message = document.getElementById('message').value
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
                             var message_model = {
+                                "chatid": app.$data.current_chatid,
                                 "user": username,
-                                "content":message
+                                "content":message,
+                                "date": Date()
                             }
-                            await app.$data.messages.push(message_model)
+                            //await app.$data.messages.push(message_model)
+                            ws.send(JSON.stringify(message_model))
                             document.getElementById('span_content').scrollIntoView(false);
                         },
                         // getChats: function(){
@@ -114,7 +127,8 @@
                     props:['chat'],
                     methods :{
                         initializeChat : function(){
-                            console.log(this.$parent._self.$parent.getMessages())
+                            console.log('Clicked!')
+                            this.$parent._self.$parent.getMessages(this.$props.chat)
                         }
                     },
                     template: '<p v-on:click="initializeChat">{{chat}}</p>'

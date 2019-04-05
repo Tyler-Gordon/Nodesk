@@ -99,6 +99,15 @@ server.on('request', (req, res) => {
                 res.writeHead(301, { 'Location': '/' });
                 res.end();
             }
+        case '/messages':
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            const chatid = parsedUrl.query.chatid
+            //console.log(chatid)
+            message.getMessages(chatid,(data)=>{
+                //console.log(data)
+                //console.log(data)
+                res.end(JSON.stringify(data));
+            });
             break;
 
         // Form submission routes
