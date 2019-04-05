@@ -12,6 +12,7 @@ var connectedUsers = [];
 const hashPassword = require('./hashString').createHash;
 const getBody = require('./getStreamData').getStreamData;
 const createChat =  require('./chat').createChat;
+const getChatIDs = require('./chat.js').getChatIDs;
 const authenticateUser = require('./userLogin').authenticateUser;
 const message = require('./messages');
 const registerUser = require('./userRegistration').registerUser;
@@ -35,6 +36,22 @@ server.on('request', (req, res) => {
             var stream = fs.createReadStream(`./Public/chat.html`);
             res.writeHead(200, { 'Content-Type': 'text/html' });
             stream.pipe(res);
+
+            // get user id
+            // send user id
+            // send all chatids and users 
+            // get ws
+            break;
+
+        case '/chatids':
+            user = qs.parse(req.headers.cookie).Username
+            console.log(user) 
+            getChatIDs(user,(data)=>{
+                console.log(JSON.stringify(data))
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.write(JSON.stringify(data))
+                res.end()
+            })  
             break;
 
         case '/images':

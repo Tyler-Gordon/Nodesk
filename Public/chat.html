@@ -10,7 +10,7 @@
         <title>Nodesk</title>
     </head>
 
-    <body style='overflow-x: hidden; width:100%;'>
+    <body style='overflow-x: hidden; width:100%;' onload='getChats()'>
         <div id='app' class='row justify-content-center align-items-center' style='height: 100vh; '>
             <div class='col-md-3 col-sm-12 h-100 bg-light' style='overflow-y: auto; max-height: 100vh;height:100vh;'>
                 <Chats v-bind:chats='chats'/>
@@ -44,16 +44,19 @@
                             chats:[]
                     },
                     methods: {
-                        callServer : function(chatid){ 
-                          var xhr = new XMLHttpRequest();
-                          xhr.onload = function () {
-                          if (xhr.status >= 200 && xhr.status < 300) {
-                            // var serverData = JSON.parse(xhr.responseText)
-                            // var serverData = xhr.responseText
-                          }
-                          };
-                          xhr.open("GET", `messages?userid=${chatid}`,true);
-                          xhr.send();
+                        getChats : function(){ 
+                            var xhr = new XMLHttpRequest();
+                            xhr.onload = function () {
+                            if (xhr.status >= 200 && xhr.status < 300) {
+                                chats = JSON.parse(xhr.responseText)
+                                chats.forEach(element => {
+                                app.$data.chats.push(element)
+                                });
+                            }
+                            };
+                            xhr.open("GET", `/chatids`,true);
+                            xhr.send();
+
                         },
                         getMessages : function(){
                             // const chatid = document.getElementById('chatid').value;
@@ -80,14 +83,18 @@
                             await app.$data.messages.push(message_model)
                             document.getElementById('span_content').scrollIntoView(false);
                         },
-                        getChats: function(){
-                            var sample_chats = [{'chatid':'chat 1'},{'chatid':'chat 2'}]
-                            sample_chats.forEach(element => {
-                                app.$data.chats.push(element.chatid)
-                            });
-                            console.log(app.$data.chats)
-                        }
+                        // getChats: function(){
+                        //     var sample_chats = [{'chatid':'chat 1'},{'chatid':'chat 2'}]
+                        //     sample_chats.forEach(element => {
+                        //         app.$data.chats.push(element.chatid)
+                        //     });
+                        //     console.log(app.$data.chats)
+                        // }
                     },
+                    created: function(){
+                        this.getChats()
+                    }
+
                 })}
                 var MessageItem = Vue.component('MessageItem',{
                     name: 'MessageItem',
