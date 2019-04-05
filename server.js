@@ -43,14 +43,19 @@ server.on('request', (req, res) => {
             }
             break;
         case '/chatids':
-            user = qs.parse(req.headers.cookie).Username
-            console.log(user) 
-            chat.getChatIDs(user,(data)=>{
-                console.log(JSON.stringify(data))
-                res.writeHead(200, { 'Content-Type': 'application/json' });
-                res.write(JSON.stringify(data))
-                res.end()
-            })  
+            var user = qs.parse(req.headers.cookie).Username;
+            if (connectedUsers.includes(user)) {
+                chat.getChatIDs(user,(data)=>{
+                    console.log(JSON.stringify(data));
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.write(JSON.stringify(data));
+                    res.end();
+                });
+            } else {
+                res.writeHead(301, { 'Location': '/' });
+                res.end();
+            }
+            
 
         case '/images':
             var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
