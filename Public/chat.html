@@ -10,21 +10,24 @@
         <title>Nodesk</title>
     </head>
 
-    <body style='overflow-x: hidden; width:100%;' onload='getChats()'>
+    <body style='overflow-x: hidden; width:100%;'  onload='getChats()'>
         <div id='app' class='row justify-content-center align-items-center' style='height: 100vh; '>
             <div class='col-md-3 col-sm-12 h-100 bg-light' style='overflow-y: auto; max-height: 100vh;height:100vh;'>
                 <Chats v-bind:chats='chats'/>
             </div>
             <span id='messages_span' class='col-md-9 col-sm-12 h-100' style='width:100%;'>
-                <div class='row bg-light' style='height: 10%;'>
-                    chats
+                <div class='row col-12 bg-dark container justify-content-between align-items-center' style='height: 10%; width:100%;'>
+                        <h1 class='float-left text-dark'>
+                            Nodesk -    
+                        </h1>
+                        <button class='float-right btn btn-primary float-right'>+</button>
                 </div>
                 <div class='row' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;'>
                     <Messages v-bind:messages="messages"/>
                 </div>
-                <div class='row bg-light' style='bottom: 0%; height: 10%;'>
-                    <input  class='col-md-10' id='message'>
-                    <button class='col-md-2' v-on:click='sendMessage'>Send</button>
+                <div class='row bg-light justify-content-center align-items-center' style='bottom: 0%; height: 10%;'>
+                    <input  class='col-md-10 h-75' id='message' style='border-radius: 0px;'>
+                    <button class='btn btn-primary col-md-1 h-75' v-on:click='sendMessage'>Send</button>
                     <!-- <button v-on:click='getChats'>GET MESSAGE DATA</button> -->
                     <!-- <button v-on:click='getMessages'>Get Message</button> -->
                 </div>
@@ -33,7 +36,6 @@
         
         <script>
                 window.onload = () =>{
-                const ws = new WebSocket('ws://localhost:8000/chat', 'json');
                 var app = new Vue({
                     el : "#app",
                     components:{
@@ -53,14 +55,16 @@
                             xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
+                                chats = [A0101,A0102]
                                 chats.forEach(element => {
                                     app.$data.chats.push(element)
                                 });
+                                const ws = new WebSocket('ws://localhost:8000/chat', 'json');
+
                             }
                             };
                             xhr.open("GET", `/chatids`,true);
                             xhr.send();
-
                         },
                         getMessages : function(chatid){
                             app.$data.messages = []
@@ -139,7 +143,7 @@
                         'ChatItem' : ChatItem
                     },
                     props : ['chats'],
-                    template: '<div><button class="btn btn-light" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;border-radius:0px;"><ChatItem v-bind:chat="chat"/></button></div>'
+                    template: '<div><button class="btn btn-light bg-dark" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;border-radius:0px;"><ChatItem v-bind:chat="chat"/></button></div>'
                 })
             </script>
     </body>
