@@ -55,7 +55,6 @@
                             xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
-                                chats = [A0101,A0102]
                                 chats.forEach(element => {
                                     app.$data.chats.push(element)
                                 });
