@@ -49,30 +49,39 @@ server.on('request', (req, res) => {
 
         case '/create':
             var user = qs.parse(req.headers.cookie).Username;
-            var users = parsedUrl.query.users;
-            try {
-                chat.createChat(users, ()=> {
-                    res.writeHead(200);
-                    res.end();
-                });
-            } catch (error) {
-                if(error.name === 'UserError') {
-                    res.writeHead(400, { 'Content-Type': 'text/plain' });
-                    res.end(error.message);
+            if (authenticatedUsers.has(user)) {
+                var users = parsedUrl.query.users.split(',').push(user);
+                try {
+                    chat.createChat(users, (data)=> {
+                        res.writeHead(200, { 'Content-Type': 'application/json' });
+                        res.end(JSON.stringify(data));
+                    });
+                } catch (error) {
+                    if(error.name === 'UserError') {
+                        res.writeHead(400, { 'Content-Type': 'text/plain' });
+                        res.end(error.message);
+                    }
                 }
             }
+            break;
             
 
         case '/chatids':
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
                 try {
+                    var userChatInfo = [];
                     chat.getChatIDs(user, (data) => {
+
                         data.forEach(chatId => {
                             openChats.add(chatId);
+                            chat.getChatUsers(chatId, users => {
+                                userChatInfo.push({ chatId : chatId, users : users });
+                            });
                         });
+
                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(data));
+                        res.end(JSON.stringify(userChatInfo));
                     });
                 } catch (error) {
                     console.log(error)
@@ -118,7 +127,7 @@ server.on('request', (req, res) => {
                 getBody(req, (body) => {
                     try {
                         body = qs.parse(body);
-                        registerUser(body.username, body.email, body.password);
+                        registerUser(body.username.toLowerCase(), body.email, body.password);
                         res.writeHead(200);            
                         res.end();
                     } catch (e) {
