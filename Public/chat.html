@@ -6,34 +6,54 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
         <title>Nodesk</title>
     </head>
-
-    <body style='overflow-x: hidden; width:100%;'  onload='getChats()'>
-        <div id='app' class='row justify-content-center align-items-center' style='height: 100vh; '>
-            <div class='col-md-3 col-sm-12 h-100 bg-light' style='overflow-y: auto; max-height: 100vh;height:100vh;'>
+    <body style='overflow-x: hidden; width:101.2vw;'  onload='getChats()'>
+        <div id='app' class='row' style='height: 100vh; '>
+            <div class='col-md-3 col-sm-12 h-100 bg-dark' style='overflow-y: auto; max-height: 100vh;height:100vh;'>
                 <Chats v-bind:chats='chats'/>
             </div>
             <span id='messages_span' class='col-md-9 col-sm-12 h-100' style='width:100%;'>
-                <div class='row col-12 bg-dark container justify-content-between align-items-center' style='height: 10%; width:100%;'>
-                        <h1 class='float-left text-dark'>
-                            Nodesk -    
-                        </h1>
-                        <button class='float-right btn btn-primary float-right'>+</button>
+                <div class='row col-md-12 bg-dark justify-content-between align-items-center' style='height: 10%; width:100%;'>
+                    <h1 class='float-left text-light'>
+                        
+                    </h1>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                            Launch demo modal
+                          </button>
+                          
+                          <!-- Modal -->
+                          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  ...
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                  <button type="button" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                 </div>
-                <div class='row' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;'>
+                <div class='row container' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;max-width:100vw;'>
                     <Messages v-bind:messages="messages"/>
                 </div>
-                <div class='row bg-light justify-content-center align-items-center' style='bottom: 0%; height: 10%;'>
-                    <input  class='col-md-10 h-75' id='message' style='border-radius: 0px;'>
-                    <button class='btn btn-primary col-md-1 h-75' v-on:click='sendMessage'>Send</button>
+                <div class='row bg-light container justify-content-between align-items-center' style='bottom: 0%; height: 10%;max-width:100%;'>
+                    <input  class='col-md-10 h-75 float-left' id='message' style='border-radius: 0px;'>
+                    <button class='btn btn-primary col-md-1 h-75 float-right' v-on:click='sendMessage'>Send</button>
                     <!-- <button v-on:click='getChats'>GET MESSAGE DATA</button> -->
                     <!-- <button v-on:click='getMessages'>Get Message</button> -->
                 </div>
             </span> 
         </div>
-        
         <script>
                 window.onload = () =>{
                 var app = new Vue({
@@ -99,13 +119,6 @@
                             ws.send(JSON.stringify(message_model))
                             document.getElementById('span_content').scrollIntoView(false);
                         },
-                        // getChats: function(){
-                        //     var sample_chats = [{'chatid':'chat 1'},{'chatid':'chat 2'}]
-                        //     sample_chats.forEach(element => {
-                        //         app.$data.chats.push(element.chatid)
-                        //     });
-                        //     console.log(app.$data.chats)
-                        // }
                     },
                     created: function(){
                         this.getChats()
