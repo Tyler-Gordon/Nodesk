@@ -196,10 +196,10 @@ server.on('upgrade', (req, socket) => {
         // We have to add a reference to the socket in each chatId, this ends up allowing us to
         // push messages to all connected users more easily
         chatIds.forEach(chatId => {
-            connection.getConnectedUsers(openChats, chatId, (user) => {
-                if (connectedUsers.includes(user.user)) {
-                    user.socket = socket.ref();
-                }
+            connection.getConnectedUsers(openChats, chatId, (users) => {
+                console.log(users);
+                users.filter(user => connectedUsers.includes(user))
+                .map(user => user.socket = socket.ref());
             });
         });
     });
@@ -213,7 +213,7 @@ server.on('upgrade', (req, socket) => {
 
             // Parses the buffer for use with the database and other functions
             const parsedUserMessage = JSON.parse(bufferedUserMessage.toString('utf8'));
-            console.log(parsedUserMessage)
+            // console.log(parsedUserMessage)
             
             // Create the header to send back to the client
             const payloadHeader = constructPayloadHeader(userPayloadLength)

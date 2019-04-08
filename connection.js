@@ -29,17 +29,17 @@ exports.addOpenChats = function(openChats, chatId) {
         openChats.forEach(chat => {
             if (!(chat.chatId === chatId)){
                 openChats.push({
-                    chatId : chatId,
-                    users : []
-                });
+            chatId : chatId,
+            users : []
+        });
             }
         });
     }
 }
 
 exports.getConnectedUsers = function(openChats, chatId, callback) {
-    openChats.filter(chat => chat.chatId === chatId).users
-    .map(user => {
-        callback(user);
+    openChats.filter(chat => chat.chatId === chatId)
+    .map(chat => {
+        callback(chat.users);
     });
 }
