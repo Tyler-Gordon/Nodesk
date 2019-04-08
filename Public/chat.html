@@ -125,10 +125,19 @@
                         },
                     },
                     created: function(){
-                        this.getChats()
+                        this.getChats(),
+                        this.$data.socket.addEventListener('message', event => {
+                            console.log('Socket message')
+                            const data = JSON.parse(event.data);
+                            console.log(data)
+                            if (event.data.chatid == this.$data.current_chatid){
+                                this.$data.messages.push(event.data)
+                            }
+                        });
                     }
 
                 })}
+                
                 var MessageItem = Vue.component('MessageItem',{
                     name: 'MessageItem',
                     props:['message'],

@@ -201,16 +201,21 @@ server.on('upgrade', (req, socket) => {
             // Then send it to all users that are connected
             const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
             if(openChats.has(parsedUserMessage.chatid)) {
+                console.log('Has chatid')
                 chat.getChatUsers(parsedUserMessage.chatid, (users) => {
+                    console.log('ok')
                     users.forEach(user => {
+                        console.log (user)
                         if(authenticatedUsers.has(user)) {
-                            userSockets[user].write(returnPayload);
+                            console.log('yep')
+                            userSockets.forEach(value =>{
+                                value[user].write(returnPayload)
+                            })                        
                         }
                     })
                 })
             }
             
-
         } catch (e) {
             // I've thrown a couple errors in parseBuffer instead of returning null.
             // That way we can include a logging functionality if we want.
