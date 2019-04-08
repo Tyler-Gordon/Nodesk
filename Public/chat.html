@@ -72,7 +72,8 @@
                     data :{
                             messages : [],
                             chats:[],
-                            current_chatid:''
+                            current_chatid:'',
+                            socket : new WebSocket('ws://localhost:8000/chat', 'json')
                     },
                     methods: {
                         getChats : function(){ 
@@ -83,8 +84,6 @@
                                 chats.forEach(element => {
                                     app.$data.chats.push(element)
                                 });
-                                const ws = new WebSocket('ws://localhost:8000/chat', 'json');
-
                             }
                             };
                             xhr.open("GET", `/chatids`,true);
@@ -111,7 +110,7 @@
                             xhr.open("GET", `/messages?chatid=${chatid}`,true);
                             xhr.send();
                         },
-                        sendMessage : async function(){
+                        sendMessage : function(){
                             var message = document.getElementById('message').value
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
                             var message_model = {
@@ -121,7 +120,7 @@
                                 "date": Date()
                             }
                             //await app.$data.messages.push(message_model)
-                            ws.send(JSON.stringify(message_model))
+                            socket.send(JSON.stringify(message_model));
                             document.getElementById('span_content').scrollIntoView(false);
                         },
                     },
