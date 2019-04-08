@@ -52,6 +52,9 @@ server.on('request', (req, res) => {
             if (authenticatedUsers.has(user)) {
                 try {
                     chat.getChatIDs(user, (data) => {
+                        if (!data) {
+                            throw new Error('No Chats');
+                        }
                         data.forEach(chatId => {
                             openChats.add(chatId);
                         });
@@ -151,34 +154,37 @@ server.on('request', (req, res) => {
 });
 
 server.on('upgrade', (req, socket) => {
-
-    if (req.url !== '/chat'){
-        socket.end('HTTP/1.1 400 Bad Request');
-        return;
-    }
-
-    if (req.headers['upgrade'] !== 'websocket') {
-        socket.end('HTTP/1.1 400 Bad Request');
-        return;
-    }
+    try {
+        if (req.url !== '/chat'){
+            socket.end('HTTP/1.1 400 Bad Request');
+            return;
+        }
     
-    let userKey = req.headers['sec-websocket-key'];
-    const serverKey = createKey(userKey);
-
-    const responseHeader = [ 
-        'HTTP/1.1 101 Web Socket Protocol Handshake', 
-        'Upgrade: websocket',
-        'Connection: Upgrade',
-        `Sec-WebSocket-Accept: ${serverKey}`,
-        'Sec-WebSocket-Protocol: json'];
-
-    // This establishes the connection and turns the current TCP socket into a websocket
-    socket.write(responseHeader.join('\r\n') + '\r\n\r\n');
-
-    var user = qs.parse(req.headers.cookie).Username;
-    if (authenticatedUsers.has(user)) {
-        const userSocket = socket.ref()
-        userSockets.add({ [user] : userSocket });
+        if (req.headers['upgrade'] !== 'websocket') {
+            socket.end('HTTP/1.1 400 Bad Request');
+            return;
+        }
+        
+        let userKey = req.headers['sec-websocket-key'];
+        const serverKey = createKey(userKey);
+    
+        const responseHeader = [ 
+            'HTTP/1.1 101 Web Socket Protocol Handshake', 
+            'Upgrade: websocket',
+            'Connection: Upgrade',
+            `Sec-WebSocket-Accept: ${serverKey}`,
+            'Sec-WebSocket-Protocol: json'];
+    
+        // This establishes the connection and turns the current TCP socket into a websocket
+        socket.write(responseHeader.join('\r\n') + '\r\n\r\n');
+    
+        var user = qs.parse(req.headers.cookie).Username;
+        if (authenticatedUsers.has(user)) {
+            const userSocket = socket.ref()
+            userSockets.add({ [user] : userSocket });
+        }
+    } catch (error) {
+        console.log(error.message);
     }
 
     socket.on('data', buffer => {
@@ -195,25 +201,27 @@ server.on('upgrade', (req, socket) => {
             const payloadHeaderLength = payloadHeader.byteLength
 
             // Add the messages to the database
-            // message.addMessage(parsedUserMessage);
+            message.addMessage(parsedUserMessage);
 
             // We construct the return payload from header and the unmasked payload
             // Then send it to all users that are connected
             const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
+
+            // Check that the incoming message is in our open chats
             if(openChats.has(parsedUserMessage.chatid)) {
-                console.log('Has chatid')
+
+                // Look at all the users connected to the chat
                 chat.getChatUsers(parsedUserMessage.chatid, (users) => {
-                    console.log('ok')
                     users.forEach(user => {
-                        console.log (user)
                         if(authenticatedUsers.has(user)) {
-                            console.log('yep')
+
+                            // Push to every user that's online
                             userSockets.forEach(value =>{
                                 value[user].write(returnPayload)
-                            })                        
+                            });
                         }
-                    })
-                })
+                    });
+                });
             }
             
         } catch (e) {
