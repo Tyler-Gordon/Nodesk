@@ -188,7 +188,7 @@ server.on('upgrade', (req, socket) => {
 
     socket.on('error', err => {
         console.log(err);
-    })
+    });
 
     socket.on('data', buffer => {
         try {
@@ -231,6 +231,10 @@ server.on('upgrade', (req, socket) => {
             // I've thrown a couple errors in parseBuffer instead of returning null.
             // That way we can include a logging functionality if we want.
             console.log(e.message)
+            if (e.name === 'ConnectionClosed') {
+                userSockets.delete(user);
+                console.log(userSockets);
+            }
         }
     });
 });

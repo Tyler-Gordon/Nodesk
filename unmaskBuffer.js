@@ -11,7 +11,9 @@ function unmaskBuffer (buffer) {
     // 0x8 signifies a connection close frame so we'll return null so the server knows the connections been closed
     // 0x1 signifies a text frame which is the only type of data we want to handle
     if (opCode === 0x8){
-      throw new Error('Connection closed')
+      var connectionClosed = Error('Connection closed');
+      connectionClosed.name = 'ConnectionError';
+      throw connectionClosed; 
     } else if (opCode !== 0x1) {
       throw new Error('Unsupported data frame')
     }
