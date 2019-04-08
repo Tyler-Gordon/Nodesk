@@ -76,13 +76,16 @@ server.on('request', (req, res) => {
 
         // Getting the user's latest messages
         case '/messages':
-        var chatId = url.parse(req.url, true).chatId;
+        var chatId = url.parse(req.url, true).query.chatid;
         var user = qs.parse(req.headers.cookie).Username;
         if (authenticatedUsers.has(user)) {
             try {
                 message.getMessages(chatId, (messages) => {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
-                    res.end(JSON.stringify(messages));
+                    res.write(JSON.stringify(messages));
+                    console.log(messages);
+                    console.log(chatId);
+                    res.end()
                 });
             } catch (error) {
                 res.end();
