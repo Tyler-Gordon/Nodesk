@@ -37,9 +37,7 @@ var getChatIDs = (username,callback) => {
         // get the 'chats' table
         var userCollection = database.collection('users')
         // create a model for the chat, this will allow easy, predictable database entries
-        userCollection.findOne(({"username":username}),(err,data)=>{
-            console.log(data)
-    
+        userCollection.findOne(({"username":username}),(err,data)=>{    
             callback(data.chatids);
         })
     })
