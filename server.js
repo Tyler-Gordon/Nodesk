@@ -89,7 +89,8 @@ server.on('request', (req, res) => {
                     res.end()
                 });
             } catch (error) {
-                res.end();
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end('[]');
             }
         } else {
             res.writeHead(301, { 'Location': '/' });

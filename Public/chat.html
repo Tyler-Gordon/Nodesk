@@ -60,7 +60,7 @@
                 document.getElementById("createChatButton").style.display = "block";
                 document.getElementById("app").style.overflowY ='auto'
             }
-                window.onload = () =>{
+                window.onload = () => {
                 var app = new Vue({
                     el : "#app",
                     components:{
@@ -82,7 +82,6 @@
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
                                 
-                                
                                 chats.forEach(element => {
                                     app.$data.chats.push(element)
                                 });
@@ -95,6 +94,7 @@
                         getMessages : function(chatid){
                             app.$data.messages = []
                             var xhr = new XMLHttpRequest();
+
                             xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 messages = JSON.parse(xhr.responseText).messages
