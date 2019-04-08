@@ -120,7 +120,7 @@
                                 "date": Date()
                             }
                             //await app.$data.messages.push(message_model)
-                            socket.send(JSON.stringify(message_model));
+                            this.$data.socket.send(JSON.stringify(message_model));
                             document.getElementById('span_content').scrollIntoView(false);
                         },
                     },
