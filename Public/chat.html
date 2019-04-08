@@ -90,10 +90,11 @@
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
                                 
-                                chats.forEach(element => {
-                                    app.$data.chats.push(element)
-                                });
-                            
+                                if (chats.length > 0) {
+                                    chats.forEach(element => {
+                                        app.$data.chats.push(element)
+                                    });
+                                }
                             }
                             };
                             xhr.open("GET", `/chatids`,true);
@@ -114,7 +115,6 @@
                                         "date" : message.date
                                         }
                                     app.$data.messages.push(message_model)
-                                    app.$data.current_chatid = chatid
                                 })
                             }
                             };
@@ -125,6 +125,7 @@
                             var message = document.getElementById('message').value
                             document.getElementById('message').value = ''
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+                            console.log(app.$data.current_chatid);
                             var message_model = {
                                 "chatid": app.$data.current_chatid,
                                 "user": username,
@@ -198,10 +199,12 @@
                     methods :{
                         initializeChat : function(){
                             console.log('Clicked!')
-                            this.$parent._self.$parent.getMessages(this.$props.chat.chatId)
+                            var chatId = this.$props.chat.chatId;
+                            this.$parent._self.$parent.getMessages(chatId)
+                            this.$parent._self.$parent.$data.current_chatid = chatId;
                         }
                     },
-                    template: '<p v-on:click="initializeChat">{{chat.users}}</p>'
+                    template: '<p v-on:click="initializeChat">{{chat.users.join(", ")}}</p>'
                 })
                 var Chats = Vue.component('Chats',{
                     name: 'Chats',

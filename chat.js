@@ -19,14 +19,12 @@ var createChat = (users,callback) =>{
             // console.log(dbUsernames);
             users.forEach(user => {
                 userCollection.findOne(({"username" : user}), (err, data) => {
-                    console.log(data.username)
-                    if(data.username !== user){
+                    if(err && !data){
                         var e = Error(`User ${user} does not exist`)
                         e.name = 'UserError'
                         throw e
                     }
-                    
-                })
+                });
             });
         // })
         chatsCollection.insertOne(chatModel,(err,result)=>{
@@ -80,11 +78,14 @@ const getChats = (username, cb) => {
         // Grabbing all the chats the user is a part of
         userCollection.findOne(({ "username" : username}), (err, user)=>{    
             chatIds = user.chatids;
+            console.log(chatIds);
+            if (!(user.chatids.length > 0)) {
+                cb([]);
+            }
 
             for (let i = 0; i < chatIds.length; i++) {
                 chatCollection.findOne(({"_id":chatIds[i]}), (err, chat)=>{
                     data.push({ chatId : chatIds[i], users : chat.users});
-                    console.log(data);
 
                     if (i === chatIds.length - 1) {
                         // Required to wait for the odd async stuff

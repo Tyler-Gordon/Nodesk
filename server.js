@@ -72,9 +72,11 @@ server.on('request', (req, res) => {
             if (authenticatedUsers.has(user)) {
                 try {
                     chat.getChats(user, (data) => {
-                        // data.forEach(chat => {
-                        //     openChats.add(chat.chatId);
-                        // });
+                        if (data.length > 0) {
+                            data.forEach(chat => {
+                                openChats.add(chat.chatId);
+                            });
+                        }
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(data));
                     });
