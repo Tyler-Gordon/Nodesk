@@ -52,9 +52,6 @@ server.on('request', (req, res) => {
             if (authenticatedUsers.has(user)) {
                 try {
                     chat.getChatIDs(user, (data) => {
-                        if (!data) {
-                            throw new Error('No Chats');
-                        }
                         data.forEach(chatId => {
                             openChats.add(chatId);
                         });
@@ -63,6 +60,7 @@ server.on('request', (req, res) => {
                         console.log(openChats, authenticatedUsers);
                     });
                 } catch (error) {
+                    console.log(error)
                     res.end();
                 }
             } else {

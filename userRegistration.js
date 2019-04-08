@@ -10,7 +10,8 @@ var registerUser = (username, email, password) =>{
     var userinfo = {
         username : username, 
         email    : email, 
-        password : encryptedPassword
+        password : encryptedPassword,
+        chatids : []
     }
 
     mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
