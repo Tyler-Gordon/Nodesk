@@ -6,13 +6,14 @@ const url = require('url');
 
 // Environment Variables
 const port = process.env.PORT || 8000
-var connectedUsers = [];
-var openChats = [];
+var authenticatedUsers = new Set();
+var openChats = new Set();
+var userSockets = new Set();
+
 
 // Our modules
 const hashPassword = require('./hashString').createHash;
 const getBody = require('./getStreamData').getStreamData;
-const connection = require('./connection');
 const chat =  require('./chat');
 const authenticateUser = require('./userLogin').authenticateUser;
 const message = require('./messages');
@@ -37,7 +38,7 @@ server.on('request', (req, res) => {
             // Check authorization from cookie
             var file = fs.readFileSync(`./Public/chat.html`);
             var user = qs.parse(req.headers.cookie).Username;
-            if (connectedUsers.includes(user)) {
+            if (authenticatedUsers.has(user)) {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(file)
             } else {
@@ -48,24 +49,15 @@ server.on('request', (req, res) => {
 
         case '/chatids':
             var user = qs.parse(req.headers.cookie).Username;
-            if (connectedUsers.includes(user)) {
+            if (authenticatedUsers.has(user)) {
                 try {
-                    
-                    chat.getChatIDs(user, (data)=> {
-                        // Super messy but it's working, don't want to look at this until later
-                        // This is for keeping track of logged in users
+                    chat.getChatIDs(user, (data) => {
                         data.forEach(chatId => {
-                            connection.addOpenChats(openChats, chatId);
-                            chat.getChatUsers(chatId, (users) => {
-                                users.forEach(username => {
-                                    connection.addOpenChatUsers(openChats, chatId, username);
-                                });
-                            });
+                            openChats.add(chatId);
                         });
-
                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.write(JSON.stringify(data));
-                        res.end();
+                        res.end(JSON.stringify(data));
+                        console.log(openChats, authenticatedUsers);
                     });
                 } catch (error) {
                     res.end();
@@ -83,32 +75,23 @@ server.on('request', (req, res) => {
             break;
 
         // Getting the user's latest messages
-            case '/messages':
-            var chatId = url.parse(req.url, true).chatId;
-            var user = qs.parse(req.headers.cookie).Username;
-            if (connectedUsers.includes(user)) {
-                try {
-                    message.getMessages(chatId, (messages) => {
-                        res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(messages));
-                    });
-                } catch (error) {
-                    res.end();
-                }
-            } else {
-                res.writeHead(301, { 'Location': '/' });
+        case '/messages':
+        var chatId = url.parse(req.url, true).chatId;
+        var user = qs.parse(req.headers.cookie).Username;
+        if (authenticatedUsers.has(user)) {
+            try {
+                message.getMessages(chatId, (messages) => {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(messages));
+                });
+            } catch (error) {
                 res.end();
             }
-        case '/messages':
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            const chatid = parsedUrl.query.chatid
-            //console.log(chatid)
-            message.getMessages(chatid,(data)=>{
-                //console.log(data)
-                //console.log(data)
-                res.end(JSON.stringify(data));
-            });
-            break;
+        } else {
+            res.writeHead(301, { 'Location': '/' });
+            res.end();
+        }
+        break;
 
         // Form submission routes
         case '/register':
@@ -142,7 +125,7 @@ server.on('request', (req, res) => {
                             res.writeHead(301, { 'Location': '/' });
                             res.end();
                         } else {
-                            connectedUsers.push(username);
+                            authenticatedUsers.add(username);
                             // Max-Age set to 3 hours
                             res.setHeader('Set-Cookie', [`Max-Age=${1000 * 60 * 60 * 3}`])
                             res.setHeader('Set-Cookie', [`Username=${username}`]) 
@@ -189,21 +172,11 @@ server.on('upgrade', (req, socket) => {
     // This establishes the connection and turns the current TCP socket into a websocket
     socket.write(responseHeader.join('\r\n') + '\r\n\r\n');
 
-    // Add a reference to the user's socket in all chats the user is connected to
     var user = qs.parse(req.headers.cookie).Username;
-
-    chat.getChatIDs(user, (chatIds) => {
-        // We have to add a reference to the socket in each chatId, this ends up allowing us to
-        // push messages to all connected users more easily
-        chatIds.forEach(chatId => {
-            connection.getConnectedUsers(openChats, chatId, (users) => {
-                console.log(users);
-                users.filter(user => connectedUsers.includes(user))
-                .map(user => user.socket = socket.ref());
-            });
-        });
-    });
-
+    if (authenticatedUsers.has(user)) {
+        const userSocket = socket.ref()
+        userSockets.add({ [user] : userSocket });
+    }
 
     socket.on('data', buffer => {
         try {
@@ -213,7 +186,6 @@ server.on('upgrade', (req, socket) => {
 
             // Parses the buffer for use with the database and other functions
             const parsedUserMessage = JSON.parse(bufferedUserMessage.toString('utf8'));
-            // console.log(parsedUserMessage)
             
             // Create the header to send back to the client
             const payloadHeader = constructPayloadHeader(userPayloadLength)
@@ -225,11 +197,11 @@ server.on('upgrade', (req, socket) => {
             // We construct the return payload from header and the unmasked payload
             // Then send it to all users that are connected
             const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
-            connection.getConnectedUsers(openChats, parsedUserMessage.chatId, (user) => {
-                if (connectedUsers.includes(user.user)) {
-                    user.socket.write(returnPayload);
-                }
-            });
+            if(openChats.has(parsedUserMessage.chatid)) {
+                console.log(returnPayload);
+                console.log(userSockets);
+            }
+            
 
         } catch (e) {
             // I've thrown a couple errors in parseBuffer instead of returning null.
