@@ -4,7 +4,7 @@ const dataBase = 'learning-node';
 var dataBaseURL = 'mongodb://tyler:node2520@ds125073.mlab.com:25073/learning-node'
  
 // Models, and inserts a new chat into the database
-var createChat = (users) =>{
+var createChat = (users,callback) =>{
     mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
         // access the database
         const database = client.db(dataBase);
@@ -13,7 +13,18 @@ var createChat = (users) =>{
         var chatId = crypto.randomBytes(10).toString('hex');
         // create a model for the chat, this will allow easy, predictable database entries
         var chatModel = {'_id':chatId,messages : [],users : users}
+
+        dbUsernames = userCollection.distinct('username')
+        users.forEach(user => {
+            if(!dbUsernames.includes(user)){
+
+                var e = Error(`User ${user} does not exist`)
+                e.name = 'UserError'
+                throw e
+            }
+        });
         chatsCollection.insertOne(chatModel)
+        callback()
     })
 }
 
