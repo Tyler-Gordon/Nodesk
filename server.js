@@ -201,8 +201,13 @@ server.on('upgrade', (req, socket) => {
             // Then send it to all users that are connected
             const returnPayload = Buffer.concat([payloadHeader, bufferedUserMessage], payloadHeaderLength + userPayloadLength);
             if(openChats.has(parsedUserMessage.chatid)) {
-                console.log(returnPayload);
-                console.log(userSockets);
+                chat.getChatUsers(parsedUserMessage.chatid, (users) => {
+                    users.forEach(user => {
+                        if(authenticatedUsers.has(user)) {
+                            userSockets[user].write(returnPayload);
+                        }
+                    })
+                })
             }
             
 
