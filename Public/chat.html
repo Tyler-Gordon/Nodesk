@@ -119,6 +119,7 @@
                         },
                         sendMessage : function(){
                             var message = document.getElementById('message').value
+                            document.getElementById('message').value = ''
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
                             var message_model = {
                                 "chatid": app.$data.current_chatid,
@@ -148,7 +149,10 @@
                                 this.$data.messages.push(message_model)
                                 console.log(this.$data.messages)
                             }
-                        });
+                        }),
+                        this.$data.socket.addEventListener('close', event => {
+                            location.reload(true)
+                        })
                     }
 
                 })}
