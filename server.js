@@ -50,7 +50,8 @@ server.on('request', (req, res) => {
         case '/create':
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
-                var users = parsedUrl.query.users.split(',').push(user);
+                var users = parsedUrl.query.users.split(',');
+                users.push(user)
                 try {
                     chat.createChat(users, (data)=> {
                         res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -70,18 +71,12 @@ server.on('request', (req, res) => {
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
                 try {
-                    var userChatInfo = [];
-                    chat.getChatIDs(user, (data) => {
-
-                        data.forEach(chatId => {
-                            openChats.add(chatId);
-                            chat.getChatUsers(chatId, users => {
-                                userChatInfo.push({ chatId : chatId, users : users });
-                            });
-                        });
-
+                    chat.getChats(user, (data) => {
+                        // data.forEach(chat => {
+                        //     openChats.add(chat.chatId);
+                        // });
                         res.writeHead(200, { 'Content-Type': 'application/json' });
-                        res.end(JSON.stringify(userChatInfo));
+                        res.end(JSON.stringify(data));
                     });
                 } catch (error) {
                     console.log(error)

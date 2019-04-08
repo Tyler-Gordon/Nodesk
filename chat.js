@@ -33,9 +33,9 @@ var getChatUsers = (chatid, callback)=>{
         // access the database
         const database = client.db(dataBase);
         // get the 'chats' table
-        var userCollection = database.collection('chats')
+        var chatCollection = database.collection('chats')
         // create a model for the chat, this will allow easy, predictable database entries
-        userCollection.findOne(({"_id":chatid}),(err,data)=>{
+        chatCollection.findOne(({"_id":chatid}),(err,data)=>{
             callback(data.users);
         })
     })
@@ -53,4 +53,36 @@ var getChatIDs = (username,callback) => {
         })
     })
 }
-module.exports = {createChat,getChatIDs,getChatUsers};   
+
+const getChats = (username, cb) => {
+    mongoClient.connect(dataBaseURL, { useNewUrlParser:true }, (err, client) => {
+        // Local variables
+        var data = [];
+        var chatIds;
+        const database = client.db(dataBase);
+        
+        // Loading the collections
+        var chatCollection = database.collection('chats')
+        var userCollection = database.collection('users')
+
+        // Grabbing all the chats the user is a part of
+        userCollection.findOne(({ "username" : username}), (err, user)=>{    
+            chatIds = user.chatids;
+
+            for (let i = 0; i < chatIds.length; i++) {
+                chatCollection.findOne(({"_id":chatIds[i]}), (err, chat)=>{
+                    data.push({ chatId : chatIds[i], users : chat.users});
+                    console.log(data);
+
+                    if (i === chatIds.length - 1) {
+                        // Required to wait for the odd async stuff
+                        cb(data);
+                    }
+                });
+            }
+
+        });
+    });
+}
+
+module.exports = {createChat,getChatIDs,getChatUsers, getChats};   
