@@ -186,6 +186,10 @@ server.on('upgrade', (req, socket) => {
         console.log(error.message);
     }
 
+    socket.on('error', err => {
+        console.log(err);
+    })
+
     socket.on('data', buffer => {
         try {
             // Unmasks the buffer received from client
