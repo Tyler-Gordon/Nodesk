@@ -47,6 +47,22 @@ server.on('request', (req, res) => {
             }
             break;
 
+        case '/create':
+            var user = qs.parse(req.headers.cookie).Username;
+            var users = parsedUrl.query.users;
+            try {
+                chat.createChat(users, ()=> {
+                    res.writeHead(200);
+                    res.end();
+                });
+            } catch (error) {
+                if(error.name === 'UserError') {
+                    res.writeHead(400, { 'Content-Type': 'text/plain' });
+                    res.end(error.message);
+                }
+            }
+            
+
         case '/chatids':
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
@@ -57,7 +73,6 @@ server.on('request', (req, res) => {
                         });
                         res.writeHead(200, { 'Content-Type': 'application/json' });
                         res.end(JSON.stringify(data));
-                        console.log(openChats, authenticatedUsers);
                     });
                 } catch (error) {
                     console.log(error)
@@ -84,8 +99,6 @@ server.on('request', (req, res) => {
                 message.getMessages(chatId, (messages) => {
                     res.writeHead(200, { 'Content-Type': 'application/json' });
                     res.write(JSON.stringify(messages));
-                    console.log(messages);
-                    console.log(chatId);
                     res.end()
                 });
             } catch (error) {
@@ -188,7 +201,7 @@ server.on('upgrade', (req, socket) => {
 
     socket.on('error', err => {
         console.log(err);
-    })
+    });
 
     socket.on('data', buffer => {
         try {
@@ -230,8 +243,13 @@ server.on('upgrade', (req, socket) => {
         } catch (e) {
             // I've thrown a couple errors in parseBuffer instead of returning null.
             // That way we can include a logging functionality if we want.
-            console.log(e.message)
+            console.log(e.message);
+            if (e.name === 'ConnectionError') {
+                console.log(user);
+                userSockets.delete(user);
+            }
         }
+    console.log(userSockets);
     });
 });
             
