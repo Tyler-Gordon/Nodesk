@@ -140,16 +140,17 @@
                             xhr.onload = function () {
                                 if (xhr.status >= 200 && xhr.status < 300) {
                                     closeForm()
+                                    location.reload()
                                 }else if(xhr.status == 400){
                                     alert(xhr.responseText)
                                 }
                             };
                             var userString = this.$data.createChatUserList
                             if (userString.length > 1) {
-                                userString.join('&users[]=');
+                                userString.join('&users=');
                             }
 
-                            xhr.open("GET", `/create?users[]=${userString}`,true);
+                            xhr.open("GET", `/create?users=${userString}`,true);
                             xhr.send();
                         }
                     },
@@ -197,10 +198,10 @@
                     methods :{
                         initializeChat : function(){
                             console.log('Clicked!')
-                            this.$parent._self.$parent.getMessages(this.$props.chat)
+                            this.$parent._self.$parent.getMessages(this.$props.chat.chatId)
                         }
                     },
-                    template: '<p v-on:click="initializeChat">{{chat}}</p>'
+                    template: '<p v-on:click="initializeChat">{{chat.users}}</p>'
                 })
                 var Chats = Vue.component('Chats',{
                     name: 'Chats',
