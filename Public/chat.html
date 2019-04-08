@@ -9,43 +9,36 @@
         <title>Nodesk</title>
     </head>
     <body style='overflow-x: hidden; width:101.2vw;'  onload='getChats()'>
-        <div id='app' class='row' style='height: 100vh; '>
-            <div class='col-md-3 col-sm-12 h-100 bg-dark' style='overflow-y: auto; max-height: 100vh;height:100vh;'>
+        <div id='app' class='row bg-dark' style='height: 100vh; '> 
+            <div class='col-md-3 col-sm-12 bg-dark' style='overflow-y: auto; max-height: 100vh;height:90vh;top:58px;'>
                 <Chats v-bind:chats='chats'/>
             </div>
             <span id='messages_span' class='col-md-9 col-sm-12 h-100' style='width:100%;'>
                 <div class='row col-md-12 bg-dark justify-content-between align-items-center' style='height: 10%; width:100%;'>
-                    <h1 class='float-left text-light'>
-                        
-                    </h1>
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                            Launch demo modal
-                          </button>
-                          
-                          <!-- Modal -->
-                          <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                              <div class="modal-content">
-                                <div class="modal-header">
-                                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                  </button>
-                                </div>
-                                <div class="modal-body">
-                                  ...
-                                </div>
-                                <div class="modal-footer">
-                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                  <button type="button" class="btn btn-primary">Save changes</button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                    <h1 class='float-left text-light'></h1>
+                    <button class='btn btn-primary'onclick="openForm()" id='createChatButton'> Create Chat</button>
                 </div>
-                <div class='row container' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;max-width:100vw;'>
+
+
+
+
+                <div class="form-popup container bg-light" id="myForm" style='display:none; height:40%;width:100%;'>
+                        <form action='' class="form-container justify-content-between align-items-center" style='height:100%;'>
+                            <h1>Create Chat</h1>
+                            <br>
+                            <input class='col-8 form-control' type="text" placeholder="Enter users" name="users" required>
+                            <br>
+                            <br>
+                            <button type="submit" class="btn btn-primary">Create</button>
+                            <button type="submit" class="btn btn-secondary cancel" onclick="closeForm()">Close</button>
+                        </form>
+                    </div>
+
+
+                <div class='row container bg-light' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;max-width:100vw;'>
                     <Messages v-bind:messages="messages"/>
                 </div>
+                
                 <div class='row bg-light container justify-content-between align-items-center' style='bottom: 0%; height: 10%;max-width:100%;'>
                     <input  class='col-md-10 h-75 float-left' id='message' style='border-radius: 0px;'>
                     <button class='btn btn-primary col-md-1 h-75 float-right' v-on:click='sendMessage'>Send</button>
@@ -54,7 +47,19 @@
                 </div>
             </span> 
         </div>
+        
         <script>
+            function openForm() {
+                document.getElementById("myForm").style.display = "block";
+                document.getElementById("createChatButton").style.display = "none";
+                document.getElementById("app").style.overflowY ='hidden'
+            }
+
+            function closeForm() {
+                document.getElementById("myForm").style.display = "none";
+                document.getElementById("createChatButton").style.display = "block";
+                document.getElementById("app").style.overflowY ='auto'
+            }
                 window.onload = () =>{
                 var app = new Vue({
                     el : "#app",
@@ -155,7 +160,7 @@
                         'ChatItem' : ChatItem
                     },
                     props : ['chats'],
-                    template: '<div><button class="btn btn-light bg-dark" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;border-radius:0px;"><ChatItem v-bind:chat="chat"/></button></div>'
+                    template: '<div><button class="btn btn-light bg-light" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;border-radius:0px;"><ChatItem v-bind:chat="chat"/></button></div>'
                 })
             </script>
     </body>
