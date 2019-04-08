@@ -81,9 +81,14 @@
                             xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 chats = JSON.parse(xhr.responseText)
+                                if (chats.length() <= 0){
+                                    
+                                }
+                                else{
                                 chats.forEach(element => {
                                     app.$data.chats.push(element)
                                 });
+                            }
                             }
                             };
                             xhr.open("GET", `/chatids`,true);
@@ -130,8 +135,16 @@
                             console.log('Socket message')
                             const data = JSON.parse(event.data);
                             console.log(data)
-                            if (event.data.chatid == this.$data.current_chatid){
-                                this.$data.messages.push(event.data)
+                            console.log(this.$data.current_chatid)
+                            if (data.chatid === this.$data.current_chatid){
+                                console.log('Ok')
+                                var message_model = {
+                                        "user": data.user,
+                                        "content":data.content,
+                                        "date" : data.date
+                                }
+                                this.$data.messages.push(message_model)
+                                console.log(this.$data.messages)
                             }
                         });
                     }

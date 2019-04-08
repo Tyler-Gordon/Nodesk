@@ -10,8 +10,12 @@ var addMessage = (messageObject) =>{
         const database = client.db(dataBase);
         // get the 'chats' table
         var collection = database.collection('chats')
+        chatid = messageObject['chatid']
+        delete messageObject['chatid']
+        console.log(messageObject)
+
         // push the new message into the chat based on its id
-        collection.update({_id:messageObject.chatId},{$push:{messages:messageObject}}
+        collection.update({_id:chatid},{$push:{messages:messageObject}}
         )
     })
 }
