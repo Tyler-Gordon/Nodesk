@@ -93,12 +93,13 @@ server.on('request', (req, res) => {
         case '/background':
             var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
             res.writeHead(200, {'Content-Type': 'image/jpeg'});
-            stream.pipe(res)
+            stream.pipe(res);
             break;
+
         case '/logo':
             var stream = fs.createReadStream('./Public/images/logo.png')
             res.writeHead(200, {'Content-Type': 'image/png'});
-            stream.pipe(res)
+            stream.pipe(res);
             break;
 
         // Getting the user's latest messages
