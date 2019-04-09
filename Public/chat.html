@@ -172,7 +172,7 @@
                                 this.$data.messages.push(message_model)
                                 console.log(this.$data.messages)
                             }
-                        }),
+                        })
                         this.$data.socket.addEventListener('close', event => {
                             location.reload(true)
                         })

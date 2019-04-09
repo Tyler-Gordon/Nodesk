@@ -236,10 +236,21 @@ server.on('upgrade', (req, socket) => {
                 chat.getChatUsers(parsedUserMessage.chatid, (users) => {
                     users.forEach(user => {
                         if(authenticatedUsers.has(user)) {
-
                             // Push to every user that's online
                             userSockets.forEach(value =>{
-                                value[user].write(returnPayload)
+                                // console.log('value')                                
+                                // console.log(value)
+                                // console.log('user')
+                                // console.log(user)
+                                // console.log('value user')
+                                    socket = value[user]
+                                //console.log(socket)
+                                try{
+                                    socket.write(returnPayload)
+                                }
+                                catch{
+                                    console.log('caught')
+                                }
                             });
                         }
                     });
