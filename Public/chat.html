@@ -53,7 +53,6 @@
             function addUserToList(){
                 userList.push(document.getElementById('users').value)
                 document.getElementById('users').value = ''
-                console.log(userList)
             }
 
             function openForm() {
@@ -80,7 +79,7 @@
                             messages : [],
                             chats:[],
                             current_chatid:'',
-                            socket : new WebSocket('wss://localhost:8000/chat', 'json'),
+                            socket : new WebSocket('ws://localhost:8000/chat', 'json'),
                             createChatUserList:userList
                     },
                     methods: {
@@ -107,7 +106,6 @@
                             xhr.onload = function () {
                             if (xhr.status >= 200 && xhr.status < 300) {
                                 messages = JSON.parse(xhr.responseText).messages
-                                console.log(messages)
                                 messages.forEach(message =>{
                                     var message_model = {
                                         "user": message.user,
@@ -127,7 +125,6 @@
                             var message = document.getElementById('message').value
                             document.getElementById('message').value = ''
                             var username = document.cookie.replace(/(?:(?:^|.*;\s*)Username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-                            console.log(app.$data.current_chatid);
                             var message_model = {
                                 "chatid": app.$data.current_chatid,
                                 "user": username,
@@ -159,19 +156,14 @@
                     created: function(){
                         this.getChats(),
                         this.$data.socket.addEventListener('message', event => {
-                            console.log('Socket message')
                             const data = JSON.parse(event.data);
-                            console.log(data)
-                            console.log(this.$data.current_chatid)
                             if (data.chatid === this.$data.current_chatid){
-                                console.log('Ok')
                                 var message_model = {
                                         "user": data.user,
                                         "content":data.content,
                                         "date" : data.date
                                 }
                                 this.$data.messages.push(message_model)
-                                console.log(this.$data.messages)
                                 document.getElementById('span_content').scrollIntoView(false);
 
                             }
@@ -201,7 +193,6 @@
                     props:['chat'],
                     methods :{
                         initializeChat : function(){
-                            console.log('Clicked!')
                             var chatId = this.$props.chat.chatId;
                             this.$parent._self.$parent.getMessages(chatId)
                             this.$parent._self.$parent.$data.current_chatid = chatId;

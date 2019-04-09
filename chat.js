@@ -78,7 +78,6 @@ const getChats = (username, cb) => {
         // Grabbing all the chats the user is a part of
         userCollection.findOne(({ "username" : username}), (err, user)=>{    
             chatIds = user.chatids;
-            console.log(chatIds);
             if (!(user.chatids.length > 0)) {
                 cb([]);
             }

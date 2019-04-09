@@ -20,7 +20,6 @@ var registerUser = (username, email, password) =>{
         collection.find({ username:username, email:email }).toArray((err, docs)=>{
             if(docs.length === 0){
                 collection.insertOne(userinfo);
-                console.log('USER PUBLISHED');
                 client.close();
                 return;
             }

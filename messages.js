@@ -12,7 +12,6 @@ var addMessage = (messageObject) =>{
         var collection = database.collection('chats')
         chatid = messageObject['chatid']
         delete messageObject['chatid']
-        console.log(messageObject)
 
         // push the new message into the chat based on its id
         collection.update({_id:chatid},{$push:{messages:messageObject}}

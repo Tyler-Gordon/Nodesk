@@ -266,7 +266,6 @@ server.on('upgrade', (req, socket) => {
                 userSockets.delete(user);
             }
         }
-    console.log(userSockets);
     });
 });
             
