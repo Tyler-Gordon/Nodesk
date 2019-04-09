@@ -5,8 +5,8 @@ const qs = require('querystring');
 const url = require('url');
 
 const options = {
-    key : fs.readFileSync('./key.pem'),
-    cert : fs.readFileSync( './server.crt' )
+    key : fs.readFileSync('key.pem'),
+    cert : fs.readFileSync( 'server.crt' )
 }
 const server = https.createServer(options);
 
