@@ -97,7 +97,7 @@ server.on('request', (req, res) => {
             break;
         case '/logo':
             var stream = fs.createReadStream('./Public/images/logo.png')
-            res.writeHead(200, {'Content-Type': 'image/jpeg'});
+            res.writeHead(200, {'Content-Type': 'image/png'});
             stream.pipe(res)
             break;
 
