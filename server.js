@@ -5,7 +5,7 @@ const qs = require('querystring');
 const url = require('url');
 
 // Environment Variables
-const port = process.env.PORT || 8000
+const port = 3000;
 var authenticatedUsers = new Set();
 var openChats = new Set();
 var userSockets = new Set();
