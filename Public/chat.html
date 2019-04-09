@@ -6,9 +6,6 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/vue"></script>
-        <!-- <script type="module">
-                import Vue from 'https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.esm.browser.js'
-              </script> -->
         <title>Nodesk</title>
     </head>
     <body style='overflow-x: hidden; width:100vw;'  onload='getChats()'>
@@ -79,7 +76,7 @@
                             messages : [],
                             chats:[],
                             current_chatid:'',
-                            socket : new WebSocket('ws://localhost:8000/chat', 'json'),
+                            socket : new WebSocket('ws://35.163.12.144/chat', 'json'),
                             createChatUserList:userList
                     },
                     methods: {
