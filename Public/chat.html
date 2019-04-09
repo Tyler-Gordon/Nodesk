@@ -11,39 +11,39 @@
               </script> -->
         <title>Nodesk</title>
     </head>
-    <body style='overflow-x: hidden; width:101.2vw;'  onload='getChats()'>
-        <div id='app' class='row bg-dark' style='height: 100vh; '> 
-            <div class='col-md-3 col-sm-12 bg-dark' style='overflow-y: auto; max-height: 100vh;height:90vh;top:58px;'>
-                <Chats v-bind:chats='chats'/>
+    <body style='overflow-x: hidden; width:100vw;'  onload='getChats()'>
+        <div id='app' class='row' style='background:#AEBEC4;height: 100vh; '> 
+            <div class='col-md-2 col-sm-12 container' style='background:#AEBEC4;overflow-y: auto; max-height: 100vh;height:100vh;'>
+                <button class='btn float-right' style='background:#F2F9FF;position:relative;top:10px;z-index: 100;'  onclick="openForm()" id='createChatButton'>+</button>
+                <Chats style='position: relative;top:20px;' v-bind:chats='chats'/>
             </div>
-            <span id='messages_span' class='col-md-9 col-sm-12 h-100' style='width:100%;'>
-                <div class='row col-md-12 bg-dark justify-content-between align-items-center' style='height: 10%; width:100%;'>
+            <span id='messages_span' class='col-md-10 col-sm-12 h-100' style='width:100%;'>
+                <div class='row col-md-12 justify-content-between align-items-center' style='height: 10%; width:100%;background:#AEBEC4'>
                     <h1 class='float-left text-light'></h1>
-                    <button class='btn btn-primary'onclick="openForm()" id='createChatButton'> Create Chat</button>
                 </div>
 
 
 
 
-                <div class="form-popup container bg-light" id="myForm" style='display:none; height:40%;width:100%;'>
+                <div class="form-popup container" id="myForm" style='display:none; height:40%;width:100%;background:#AEBEC4'>
                     <form action='' class="form-container justify-content-between align-items-center" style='height:100%;'>
                         <h1>Create Chat</h1>
                         <input id='users' class='col-8 form-control' type="text" placeholder="Enter users" name="users" required>
-                        <button type='button' class='btn btn-primary' onclick='addUserToList()'>Add</button>
+                        <button type='button' class='btn' style='background:#F2F9FF' onclick='addUserToList()'>Add</button>
                         <h5 id='UserList'>Current Users: {{createChatUserList}}</h5>
-                        <button type='button' v-on:click='createChat' class="btn btn-primary">Create</button>
-                        <button type='button' class="btn btn-secondary cancel" onclick="closeForm()">Close</button>
+                        <button type='button' v-on:click='createChat' class="btn" style='background:#F2F9FF' >Create</button>
+                        <button type='button' class="btn cancel" style='background:#F2F9FF' onclick="closeForm()">Close</button>
                     </form>
                 </div>
 
 
-                <div class='row container bg-light' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;max-width:100vw;'>
-                    <Messages v-bind:messages="messages"/>
+                <div class='row container' id='span_content' style='overflow-y: scroll; max-height: 80vh;height:80vh;max-width:100vw;background:#F2F9FF'>
+                    <Messages id='messagescontainer' v-bind:messages="messages"/>
                 </div>
                 
-                <div class='row bg-light container justify-content-between align-items-center' style='bottom: 0%; height: 10%;max-width:100%;'>
-                    <input  class='col-md-10 h-75 float-left' id='message' style='border-radius: 0px;'>
-                    <button class='btn btn-primary col-md-1 h-75 float-right' v-on:click='sendMessage'>Send</button>
+                <div class='row container justify-content-between align-items-center' style='bottom: 0%; height: 10%;max-width:100%;background:#F2F9FF'>
+                    <input  class='col-md-10 h-75 float-left' id='message' style='border-radius: 0px;display:none;'>
+                    <button class='btn col-md-1 h-75 float-right' id='sendmessagebutton' style='background: #C7D0D3;display:none;' v-on:click='sendMessage'>Send</button>
                 </div>
             </span> 
         </div>
@@ -114,8 +114,10 @@
                                         "content":message.content,
                                         "date" : message.date
                                         }
-                                    app.$data.messages.push(message_model)
+                                    app.$data.messages.push(message_model)  
                                 })
+                                document.getElementById('message').style.display ='block'
+                                document.getElementById('sendmessagebutton').style.display = 'block'
                             }
                             };
                             xhr.open("GET", `/messages?chatid=${chatid}`,true);
@@ -134,7 +136,6 @@
                             }
                             //await app.$data.messages.push(message_model)
                             this.$data.socket.send(JSON.stringify(message_model));
-                            document.getElementById('span_content').scrollIntoView(false);
                         },
                         createChat: function(){
                             var xhr = new XMLHttpRequest();
@@ -171,6 +172,8 @@
                                 }
                                 this.$data.messages.push(message_model)
                                 console.log(this.$data.messages)
+                                document.getElementById('span_content').scrollIntoView(false);
+
                             }
                         })
                         this.$data.socket.addEventListener('close', event => {
@@ -183,7 +186,7 @@
                 var MessageItem = Vue.component('MessageItem',{
                     name: 'MessageItem',
                     props:['message'],
-                    template: '<p>{{message.user}} - {{message.content}}</p>'
+                    template: '<div><h3>{{message.user}}</h3><p>     {{message.content}}</p></div>'
                 })
                 var Messages = Vue.component('Messages',{
                     name: 'Messages',
@@ -204,7 +207,7 @@
                             this.$parent._self.$parent.$data.current_chatid = chatId;
                         }
                     },
-                    template: '<p v-on:click="initializeChat">{{chat.users.join(", ")}}</p>'
+                    template: '<div style="margin: 15px 15px;height:100%;" v-on:click="initializeChat">{{chat.users.join(", ")}}</div>'
                 })
                 var Chats = Vue.component('Chats',{
                     name: 'Chats',
@@ -212,7 +215,7 @@
                         'ChatItem' : ChatItem
                     },
                     props : ['chats'],
-                    template: '<div><button class="btn btn-light bg-light" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;border-radius:0px;"><ChatItem v-bind:chat="chat"/></button></div>'
+                    template: '<div style="margin: 5px 5px;"><button class="btn btn-outline-dark" v-bind:key="i" v-for="(chat,i) in chats" style="width:105%;margin-bottom: 5px;"><ChatItem v-bind:chat="chat"/></button></div>'
                 })
             </script>
     </body>

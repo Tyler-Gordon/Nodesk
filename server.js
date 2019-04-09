@@ -90,8 +90,13 @@ server.on('request', (req, res) => {
             }
             break;
 
-        case '/images':
+        case '/background':
             var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
+            res.writeHead(200, {'Content-Type': 'image/jpeg'});
+            stream.pipe(res)
+            break;
+        case '/logo':
+            var stream = fs.createReadStream('./Public/images/logo.png')
             res.writeHead(200, {'Content-Type': 'image/jpeg'});
             stream.pipe(res)
             break;
@@ -238,13 +243,7 @@ server.on('upgrade', (req, socket) => {
                         if(authenticatedUsers.has(user)) {
                             // Push to every user that's online
                             userSockets.forEach(value =>{
-                                // console.log('value')                                
-                                // console.log(value)
-                                // console.log('user')
-                                // console.log(user)
-                                // console.log('value user')
-                                    socket = value[user]
-                                //console.log(socket)
+                                let socket = value[user]
                                 try{
                                     socket.write(returnPayload)
                                 }
