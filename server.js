@@ -1,8 +1,15 @@
 // Node modules
-const server = require('http').createServer();
+const https = require('https')
 const fs = require('fs');
 const qs = require('querystring');
 const url = require('url');
+
+const options = {
+    key : fs.readFileSync('./key.pem'),
+    cert : fs.readFileSync( './server.crt' )
+}
+const server = https.createServer(options);
+
 
 // Environment Variables
 const port = process.env.PORT || 8000
