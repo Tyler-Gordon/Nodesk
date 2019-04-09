@@ -80,7 +80,7 @@
                             messages : [],
                             chats:[],
                             current_chatid:'',
-                            socket : new WebSocket('ws://localhost:8000/chat', 'json'),
+                            socket : new WebSocket('wss://localhost:8000/chat', 'json'),
                             createChatUserList:userList
                     },
                     methods: {
