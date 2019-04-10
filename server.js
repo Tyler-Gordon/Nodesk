@@ -135,7 +135,7 @@ server.on('request', (req, res) => {
                         res.end();
                     } catch (e) {
                         console.log(e)
-                        res.writeHead(400);            
+                        res.writeHead(301, { 'Location': '/' });          
                         res.end();
                     }
                 });  
