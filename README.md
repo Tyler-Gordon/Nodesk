@@ -1,4 +1,4 @@
-![Nodesk](Public/images/logo.PNG "")
+# Nodesk
 ---
 ### Nodesk is a Node.js chat application. Our goal is to use as few external modules as we can.
 Currently the only dependency is the MongoDB-Native driver to connect to MongoDB.
