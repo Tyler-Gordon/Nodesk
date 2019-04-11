@@ -34,6 +34,19 @@ server.on('request', (req, res) => {
             stream.pipe(res);      
             break;
 
+        case '/background':
+            var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
+            res.writeHead(200, {'Content-Type': 'image/jpeg'});
+            stream.pipe(res);
+            break;
+
+        case '/logo':
+            var stream = fs.createReadStream('./Public/images/logo.png')
+            res.writeHead(200, {'Content-Type': 'image/png'});
+            stream.pipe(res);
+            break;
+
+        // Chat endpoint
         case '/chat':
             // Check authorization from cookie
             var file = fs.readFileSync(`./Public/chat.html`);
@@ -47,6 +60,7 @@ server.on('request', (req, res) => {
             }
             break;
 
+        // End point for chat creation
         case '/create':
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
@@ -66,7 +80,7 @@ server.on('request', (req, res) => {
             }
             break;
             
-
+        // End point for getting ChatIds to create chat boxes
         case '/chatids':
             var user = qs.parse(req.headers.cookie).Username;
             if (authenticatedUsers.has(user)) {
@@ -88,18 +102,6 @@ server.on('request', (req, res) => {
                 res.writeHead(301, { 'Location': '/' });
                 res.end();
             }
-            break;
-
-        case '/background':
-            var stream = fs.createReadStream('./Public/images/lighthouse.jpg')
-            res.writeHead(200, {'Content-Type': 'image/jpeg'});
-            stream.pipe(res);
-            break;
-
-        case '/logo':
-            var stream = fs.createReadStream('./Public/images/logo.png')
-            res.writeHead(200, {'Content-Type': 'image/png'});
-            stream.pipe(res);
             break;
 
         // Getting the user's latest messages
@@ -144,7 +146,8 @@ server.on('request', (req, res) => {
             res.writeHead(301, { 'Location': '/' });
             res.end();
             break;
-        
+
+        // End point for use login
         case '/login':
             if (req.method === 'POST') {
                 getBody(req, (body) => {
