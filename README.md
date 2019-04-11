@@ -17,6 +17,7 @@ NodeJS - https://nodejs.org/en/
 1. run PowerShell/CMD/Terminal
 2. navigate to the directory where Nodesk was downloaded/cloned
 3. run ```npm init```
-4. run ```npm start```
-5. Open your browser and go to the ```localhost:8000``` url
+4. run ```npm install --production```
+5. run ```npm start```
+6. Open your browser and go to the ```localhost:8000``` url
 --- 
